@@ -1,0 +1,51 @@
+{
+  "configVersion": 0,
+  "apple": {
+    "version": "0.1.0",
+    "copyright": "2026 TAVE",
+    "categories": ["SOCIAL_NETWORKING", "PRODUCTIVITY"],
+    "advisory": {
+      "alcoholTobaccoOrDrugUseOrReferences": "NONE",
+      "contests": "NONE",
+      "gamblingSimulated": "NONE",
+      "horrorOrFearThemes": "NONE",
+      "matureOrSuggestiveThemes": "NONE",
+      "medicalOrTreatmentInformation": "NONE",
+      "profanityOrCrudeHumor": "NONE",
+      "sexualContentGraphicAndNudity": "NONE",
+      "sexualContentOrNudity": "NONE",
+      "violenceCartoonOrFantasy": "NONE",
+      "violenceRealistic": "NONE",
+      "violenceRealisticProlongedGraphicOrSadistic": "NONE",
+      "gambling": false,
+      "unrestrictedWebAccess": false,
+      "kidsAgeBand": null,
+      "ageRatingOverride": "NONE",
+      "koreaAgeRatingOverride": "NONE"
+    },
+    "info": {
+      "ko-KR": {
+        "title": "SURF",
+        "subtitle": "TAVE 구성원을 위한 커뮤니티",
+        "description": "SURF는 TAVE 구성원을 위한 모바일 커뮤니티입니다. 공지, 일정, 게시글, 구성원 정보와 활동을 모바일에서 빠르게 확인할 수 있습니다.",
+        "keywords": ["SURF", "TAVE", "커뮤니티", "동아리", "일정", "공지"],
+        "releaseNotes": "SURF 모바일 앱의 첫 배포입니다.",
+        "promoText": "TAVE 구성원을 위한 모바일 커뮤니티",
+        "marketingUrl": "https://www.tavesurf.site/",
+        "supportUrl": "https://www.tavesurf.site/",
+        "privacyPolicyUrl": "https://www.tavesurf.site/policy/personal-info"
+      },
+      "en-US": {
+        "title": "SURF",
+        "subtitle": "Community for TAVE members",
+        "description": "SURF is a mobile community app for TAVE members. Members can quickly check announcements, schedules, posts, member information, and activities from mobile.",
+        "keywords": ["SURF", "TAVE", "community", "schedule", "notice"],
+        "releaseNotes": "Initial release of the SURF mobile app.",
+        "promoText": "A mobile community for TAVE members",
+        "marketingUrl": "https://www.tavesurf.site/",
+        "supportUrl": "https://www.tavesurf.site/",
+        "privacyPolicyUrl": "https://www.tavesurf.site/policy/personal-info"
+      }
+    }
+  }
+}
