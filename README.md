@@ -76,8 +76,13 @@ src/
 ├── app/
 │   ├── _layout.tsx      # 앱 공통 레이아웃, 폰트, StatusBar 설정
 │   └── index.tsx        # WebView 기반 메인 화면
-└── components/
-    └── ui/              # 재사용 가능한 네이티브 UI 컴포넌트
+├── widgets/
+│   └── bottom-navigation/
+│       ├── index.ts     # public API
+│       ├── model/       # 타입, 상태, 순수 로직
+│       └── ui/          # 위젯 UI 컴포넌트
+└── shared/
+    └── ui/              # 앱 전역에서 재사용되는 primitive UI
 
 assets/
 ├── fonts/               # Pretendard 폰트
@@ -92,6 +97,7 @@ docs/
 
 - 코드 컨벤션은 [docs/code-convention.md](docs/code-convention.md)를 따릅니다.
 - 에이전트 작업 지침은 [AGENTS.md](AGENTS.md)를 기준으로 합니다.
+- 프로젝트 구조는 Feature-Sliced Design(FSD)을 따릅니다.
 - 앱 텍스트는 Pretendard 폰트를 사용합니다.
 - 스타일은 `StyleSheet.create`와 React Native style object를 사용합니다.
 - 단순 계산이나 이벤트 핸들러에는 불필요한 `useMemo`, `useCallback`을 추가하지 않습니다.

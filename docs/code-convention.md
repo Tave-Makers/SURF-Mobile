@@ -48,20 +48,30 @@ feat: 하단 내비게이션 추가 (#39)
 
 ## 프로젝트 구조
 
-현재 구조는 작게 유지합니다. 새 기능이 생길 때도 먼저 기존 경계를 유지하고, 실제 복잡도가 생길 때만 폴더를 늘립니다.
+프로젝트는 Feature-Sliced Design(FSD)을 따른다. 현재 앱은 작으므로 필요한 레이어부터 점진적으로 사용하되, 새 코드는 아래 레이어 경계를 기준으로 배치한다.
 
 ```txt
 src/
 ├── app/
 │   ├── _layout.tsx      # 앱 공통 Provider, font, status bar, router shell
-│   └── index.tsx        # WebView 기반 메인 화면
-└── components/
-    └── ui/              # 재사용 가능한 네이티브 UI 컴포넌트
+│   └── index.tsx        # Expo Router route, WebView 기반 메인 화면
+├── pages/               # 화면 단위 조합이 route 밖에 필요할 때 사용
+├── widgets/             # 화면에 배치되는 독립적인 UI 블록
+│   └── bottom-navigation/
+│       ├── index.ts     # public API
+│       ├── model/       # 타입, 상태, 순수 로직
+│       └── ui/          # 위젯 UI 컴포넌트
+├── features/            # 사용자 행동 단위 기능
+├── entities/            # 도메인 모델
+└── shared/
+    └── ui/              # 앱 전역에서 재사용되는 primitive UI
 ```
 
 - Expo Router의 route 파일은 `src/app/**` 아래에 둔다.
-- 여러 화면에서 재사용되는 View 컴포넌트는 `src/components/ui/**`에 둔다.
-- 특정 화면에서만 쓰고 재사용 가능성이 낮은 작은 컴포넌트는 해당 route 파일 근처에 둔다.
+- 화면에 직접 배치되는 조합형 UI는 `src/widgets/**`에 둔다.
+- 여러 레이어에서 재사용되는 primitive UI와 아이콘은 `src/shared/ui/**`에 둔다.
+- 특정 slice 내부에서만 쓰는 컴포넌트는 해당 slice의 `ui/**` 아래에 둔다.
+- 외부 레이어에서는 slice 내부 파일을 직접 import하지 말고 `index.ts` public API를 통해 import한다.
 - 에셋은 `assets/**` 아래에 둔다. 폰트는 `assets/fonts/**`를 사용한다.
 - 타입 선언은 루트 `*.d.ts` 또는 `src/**/*.d.ts`에 둔다. 에셋 import 타입처럼 전역 선언이 필요한 경우 루트에 둬도 된다.
 
@@ -112,17 +122,17 @@ export default HomeScreen;
 ESLint import/order 규칙을 따른다.
 
 1. React/React Native/Expo 등 외부 라이브러리
-2. alias import (`@/...`)
-3. 상대경로 import (`./...`)
+2. 상대경로 import (`../...`, `./...`)
+3. alias import (`@/...`)
 4. 타입 import는 가능한 한 `type` 키워드를 사용한다.
 
 ```tsx
 import { useEffect } from 'react';
 import { View, type ColorValue } from 'react-native';
 
-import { BottomNavigation } from '@/components/ui/BottomNavigation';
-
 import { HomeIcon } from './HomeIcon';
+
+import { BottomNavigation } from '@/widgets/bottom-navigation';
 ```
 
 ---
@@ -134,11 +144,29 @@ import { HomeIcon } from './HomeIcon';
 - 터치 가능한 UI는 `Pressable`을 기본으로 사용하고 `accessibilityRole`, `accessibilityLabel`, `accessibilityState`를 함께 고려한다.
 - SVG 아이콘은 `react-native-svg` 기반 컴포넌트로 만든다.
 - 네이티브 컴포넌트 props에는 웹 전용 props를 넣지 않는다. 예: `onClick`, `className`, `href`.
+- 컴포넌트 props는 같은 파일 안에서 `interface Props`로 선언한다. 외부에서 재사용해야 하는 도메인 타입만 별도 이름을 붙여 export한다.
 - 조건부 스타일은 배열 문법을 사용한다.
 
 ```tsx
-<Text style={[styles.label, isActive && styles.activeLabel]}>{label}</Text>
+interface Props {
+  label: string;
+}
+
+<Text style={[styles.label, isActive && styles.activeLabel]}>{label}</Text>;
 ```
+
+### 파일 구성 순서
+
+컴포넌트 파일은 읽는 사람이 공개 API를 먼저 볼 수 있도록 아래 순서를 따른다.
+
+1. import
+2. export type, 내부 type
+3. export component
+4. 내부 component
+5. 상수, 유틸 함수
+6. `styles`
+
+상수와 유틸 함수는 컴포넌트보다 아래에 둔다. 단, 모듈 초기화 시점에 즉시 실행되어야 하거나 외부 export가 필요한 값은 예외적으로 위에 둘 수 있다.
 
 ---
 
@@ -147,7 +175,7 @@ import { HomeIcon } from './HomeIcon';
 ### StyleSheet
 
 - 컴포넌트 하단에 `const styles = StyleSheet.create(...)`를 둔다.
-- 반복되는 디자인 값은 파일 상단의 상수로 분리한다.
+- 반복되는 디자인 값은 컴포넌트 하단, `styles` 위의 상수로 분리한다.
 - 숫자 단위는 React Native 기본 dp를 사용한다.
 - 색상은 의미 있는 이름의 상수로 분리한다.
 

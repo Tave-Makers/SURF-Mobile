@@ -3,15 +3,15 @@ import Svg, { Path } from 'react-native-svg';
 
 import { type NavigationIconSize } from './HomeIcon';
 
-type MyIconProps = {
+interface Props {
   color?: ColorValue;
   size?: NavigationIconSize;
   style?: StyleProp<ViewStyle>;
-};
+}
 
 const sizeMap: Record<NavigationIconSize, number> = { s: 16, m: 20, l: 24, xl: 28 };
 
-export const MyIcon = ({ color = '#262626', size = 'l', style }: MyIconProps) => {
+export const MyIcon = ({ color = '#262626', size = 'l', style }: Props) => {
   const iconSize = sizeMap[size];
 
   return (
