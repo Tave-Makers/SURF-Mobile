@@ -1,0 +1,32 @@
+{
+  "cli": {
+    "version": ">= 19.1.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal"
+    },
+    "production": {
+      "autoIncrement": true,
+      "ios": {
+        "credentialsSource": "local"
+      }
+    }
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "appleId": "amu6675@naver.com",
+        "ascAppId": "6764607013",
+        "ascApiKeyPath": "./certs/AuthKey_9W2SMH3ZD2.p8",
+        "ascApiKeyIssuerId": "980b9d0c-22fa-4e0a-b523-35b3db106731",
+        "ascApiKeyId": "9W2SMH3ZD2"
+      }
+    }
+  }
+}
