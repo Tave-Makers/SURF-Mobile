@@ -21,7 +21,6 @@
   "submit": {
     "production": {
       "ios": {
-        "appleId": "amu6675@naver.com",
         "ascAppId": "6764607013",
         "ascApiKeyPath": "./certs/AuthKey_9W2SMH3ZD2.p8",
         "ascApiKeyIssuerId": "980b9d0c-22fa-4e0a-b523-35b3db106731",
