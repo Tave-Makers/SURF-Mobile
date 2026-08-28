@@ -2230,6 +2230,28 @@ PODS:
     - React-utils (= 0.83.6)
     - ReactNativeDependencies
   - ReactNativeDependencies (0.83.6)
+  - RNCAsyncStorage (2.2.0):
+    - hermes-engine
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-Core-prebuilt
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - ReactNativeDependencies
+    - Yoga
   - RNCKakaoCore (2.4.6):
     - hermes-engine
     - KakaoSDKCommon (= 2.22.0)
@@ -2533,10 +2555,11 @@ DEPENDENCIES:
   - ReactCodegen (from `build/generated/ios/ReactCodegen`)
   - "ReactCommon/turbomodule/core (from `../node_modules/.pnpm/react-native@0.83.6_@babel+core@7.29.7_@types+react@19.2.17_react@19.2.0/node_modules/react-native/ReactCommon`)"
   - "ReactNativeDependencies (from `../node_modules/.pnpm/react-native@0.83.6_@babel+core@7.29.7_@types+react@19.2.17_react@19.2.0/node_modules/react-native/third-party-podspecs/ReactNativeDependencies.podspec`)"
+  - "RNCAsyncStorage (from `../node_modules/.pnpm/@react-native-async-storage+async-storage@2.2.0_react-native@0.83.6_@babel+core@7.29.7__404ff132c0fc9bb7316ad7e8aea7a548/node_modules/@react-native-async-storage/async-storage`)"
   - "RNCKakaoCore (from `../node_modules/.pnpm/@react-native-kakao+core@2.4.6_expo@55.0.26_react-native@0.83.6_@babel+core@7.29.7_@typ_509d819de4164a3e11c73d23ff4a6ead/node_modules/@react-native-kakao/core`)"
   - "RNCKakaoUser (from `../node_modules/.pnpm/@react-native-kakao+user@2.4.6_@react-native-kakao+core@2.4.6_expo@55.0.26_react-native_f36e9e895c2b3712a061a3b7a1280c4f/node_modules/@react-native-kakao/user`)"
-  - "RNFBApp (from `../node_modules/.pnpm/@react-native-firebase+app@26.3.2_patch_hash=6ee5d172214b9038ba13ef9e9ee403338262b6e3d9_74d3f3caac226b5d5bd2535d0e0a41e8/node_modules/@react-native-firebase/app`)"
-  - "RNFBMessaging (from `../node_modules/.pnpm/@react-native-firebase+messaging@26.3.2_patch_hash=6bc7a008491da1ab61e153257a4fcc0c249e_37377a1acfba5b4dda694d6864f74478/node_modules/@react-native-firebase/messaging`)"
+  - "RNFBApp (from `../node_modules/.pnpm/@react-native-firebase+app@26.3.2_patch_hash=6ee5d172214b9038ba13ef9e9ee403338262b6e3d9_625b6c1f7b99aa5ee1ab64a215661c77/node_modules/@react-native-firebase/app`)"
+  - "RNFBMessaging (from `../node_modules/.pnpm/@react-native-firebase+messaging@26.3.2_patch_hash=6bc7a008491da1ab61e153257a4fcc0c249e_f7d891bbe4e5386ea587b9b2248b63ab/node_modules/@react-native-firebase/messaging`)"
   - "RNScreens (from `../node_modules/.pnpm/react-native-screens@4.23.0_react-native@0.83.6_@babel+core@7.29.7_@types+react@19.2.17_react@19.2.0__react@19.2.0/node_modules/react-native-screens`)"
   - "RNSVG (from `../node_modules/.pnpm/react-native-svg@15.15.3_react-native@0.83.6_@babel+core@7.29.7_@types+react@19.2.17_react@19.2.0__react@19.2.0/node_modules/react-native-svg`)"
   - "Yoga (from `../node_modules/.pnpm/react-native@0.83.6_@babel+core@7.29.7_@types+react@19.2.17_react@19.2.0/node_modules/react-native/ReactCommon/yoga`)"
@@ -2770,14 +2793,16 @@ EXTERNAL SOURCES:
     :path: "../node_modules/.pnpm/react-native@0.83.6_@babel+core@7.29.7_@types+react@19.2.17_react@19.2.0/node_modules/react-native/ReactCommon"
   ReactNativeDependencies:
     :podspec: "../node_modules/.pnpm/react-native@0.83.6_@babel+core@7.29.7_@types+react@19.2.17_react@19.2.0/node_modules/react-native/third-party-podspecs/ReactNativeDependencies.podspec"
+  RNCAsyncStorage:
+    :path: "../node_modules/.pnpm/@react-native-async-storage+async-storage@2.2.0_react-native@0.83.6_@babel+core@7.29.7__404ff132c0fc9bb7316ad7e8aea7a548/node_modules/@react-native-async-storage/async-storage"
   RNCKakaoCore:
     :path: "../node_modules/.pnpm/@react-native-kakao+core@2.4.6_expo@55.0.26_react-native@0.83.6_@babel+core@7.29.7_@typ_509d819de4164a3e11c73d23ff4a6ead/node_modules/@react-native-kakao/core"
   RNCKakaoUser:
     :path: "../node_modules/.pnpm/@react-native-kakao+user@2.4.6_@react-native-kakao+core@2.4.6_expo@55.0.26_react-native_f36e9e895c2b3712a061a3b7a1280c4f/node_modules/@react-native-kakao/user"
   RNFBApp:
-    :path: "../node_modules/.pnpm/@react-native-firebase+app@26.3.2_patch_hash=6ee5d172214b9038ba13ef9e9ee403338262b6e3d9_74d3f3caac226b5d5bd2535d0e0a41e8/node_modules/@react-native-firebase/app"
+    :path: "../node_modules/.pnpm/@react-native-firebase+app@26.3.2_patch_hash=6ee5d172214b9038ba13ef9e9ee403338262b6e3d9_625b6c1f7b99aa5ee1ab64a215661c77/node_modules/@react-native-firebase/app"
   RNFBMessaging:
-    :path: "../node_modules/.pnpm/@react-native-firebase+messaging@26.3.2_patch_hash=6bc7a008491da1ab61e153257a4fcc0c249e_37377a1acfba5b4dda694d6864f74478/node_modules/@react-native-firebase/messaging"
+    :path: "../node_modules/.pnpm/@react-native-firebase+messaging@26.3.2_patch_hash=6bc7a008491da1ab61e153257a4fcc0c249e_f7d891bbe4e5386ea587b9b2248b63ab/node_modules/@react-native-firebase/messaging"
   RNScreens:
     :path: "../node_modules/.pnpm/react-native-screens@4.23.0_react-native@0.83.6_@babel+core@7.29.7_@types+react@19.2.17_react@19.2.0__react@19.2.0/node_modules/react-native-screens"
   RNSVG:
@@ -2905,6 +2930,7 @@ SPEC CHECKSUMS:
   ReactCodegen: cde7048d692fe555b95a5b7e4f2f01e9616e3d6d
   ReactCommon: ba28cd4e7d9e24014d2772a80e32da020c732b00
   ReactNativeDependencies: 54bca4c2e0995ac4e2888f8b85b045010ff34785
+  RNCAsyncStorage: 3a4f5e2777dae1688b781a487923a08569e27fe4
   RNCKakaoCore: 2c68b180090d28adceccc28c2995f933562e4d96
   RNCKakaoUser: 9dc5308278038c944179a214b8db567f2b649ecd
   RNFBApp: e9d69cd6467125f573fc5636abc123c0bbc64ba8

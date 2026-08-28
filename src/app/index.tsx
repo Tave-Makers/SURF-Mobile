@@ -6,6 +6,7 @@ import { WebView, type WebViewMessageEvent, type WebViewNavigation } from 'react
 
 import { isAppleSignInAvailable, signInWithApple } from '@/features/auth/lib/appleLogin';
 import { signInWithKakao, signOutFromKakao } from '@/features/auth/lib/kakaoLogin';
+import { readCachedSessionState, writeCachedSessionState } from '@/features/auth/lib/sessionCache';
 import { LoginOverlay } from '@/features/auth/ui/LoginOverlay';
 import {
   getPushToken,
@@ -87,6 +88,24 @@ const HomeScreen = () => {
   useEffect(() => {
     void isAppleSignInAvailable().then(setAppleAvailable);
   }, []);
+
+  // 지난번에 로그아웃 상태였다면 웹 로딩을 기다리지 않고 바로 로그인 화면을 띄운다.
+  // 예측이 틀렸으면 WebView 가 로드되는 순간 handleNavigationStateChange 가 교정한다.
+  useEffect(() => {
+    void (async () => {
+      const cached = await readCachedSessionState();
+      if (cached !== 'signed-out') return;
+
+      setStatus((previous) => (previous === 'booting' ? 'signed-out' : previous));
+    })();
+  }, []);
+
+  // 다음 실행에서 쓸 수 있도록 확정된 상태만 기록한다
+  useEffect(() => {
+    if (status !== 'signed-in' && status !== 'signed-out') return;
+
+    void writeCachedSessionState(status);
+  }, [status]);
 
   // 네이티브 정지 스플래시는 로티가 마운트되는 즉시 넘긴다.
   // 이후 화면 전환은 AnimatedSplash 가 담당한다.
@@ -235,11 +254,16 @@ const HomeScreen = () => {
     if (isLoginUrl(navigationState.url)) {
       pushRequestedRef.current = false;
       pushTokenRef.current = null;
+      // 세션을 심는 중에는 /login 을 스쳐갈 수 있으므로 유지한다
       setStatus((previous) => (previous === 'authenticating' ? previous : 'signed-out'));
       return;
     }
 
-    setStatus((previous) => (previous === 'booting' ? 'signed-in' : previous));
+    // 약관 열람(browsing)과 로그인 진행(authenticating)은 그대로 두고,
+    // 나머지는 로그인된 것으로 본다. 캐시로 미리 signed-out 이 된 경우도 여기서 교정된다
+    setStatus((previous) =>
+      previous === 'browsing' || previous === 'authenticating' ? previous : 'signed-in',
+    );
   }, []);
 
   const initScript = buildInitScript(insets);

@@ -16,6 +16,7 @@
     "sync-icon": "rm -rf ios/SURFMobile/expo.icon && cp -R assets/expo.icon ios/SURFMobile/expo.icon"
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "2.2.0",
     "@react-native-firebase/app": "^26.3.2",
     "@react-native-firebase/messaging": "^26.3.2",
     "@react-native-kakao/core": "^2.4.6",
