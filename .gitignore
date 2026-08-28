@@ -40,7 +40,8 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
-# Firebase 설정 원본은 firebase/ 에 두고, 네이티브 디렉터리의 사본은 prebuild 가 생성한다.
-# prebuild --clean 이 네이티브 디렉터리를 지울 때 원본까지 날아가는 것을 막기 위한 구조다.
-ios/*/GoogleService-Info.plist
-android/app/google-services.json
+# Firebase 설정 원본은 firebase/ 에 둔다. prebuild --clean 이 네이티브 디렉터리를
+# 지울 때 원본까지 날아가는 것을 막기 위한 구조다.
+# 네이티브 쪽 사본은 prebuild 가 생성하지만, EAS 는 네이티브 디렉터리가 커밋돼 있으면
+# prebuild 를 건너뛰므로 사본도 함께 커밋해야 빌드 서버에서 google-services 플러그인이
+# 파일을 찾을 수 있다. (Firebase 설정 파일은 앱 바이너리에 그대로 들어가는 공개 값이다)
