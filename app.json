@@ -11,7 +11,7 @@
       "icon": "./assets/expo.icon",
       "bundleIdentifier": "com.tavemakers.surf",
       "usesAppleSignIn": true,
-      "googleServicesFile": "./ios/GoogleService-Info.plist",
+      "googleServicesFile": "./firebase/GoogleService-Info.plist",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "UIBackgroundModes": ["remote-notification"]
@@ -29,7 +29,7 @@
       },
       "predictiveBackGestureEnabled": false,
       "package": "site.tavesurf.mobile",
-      "googleServicesFile": "./android/app/google-services.json",
+      "googleServicesFile": "./firebase/google-services.json",
       "permissions": ["android.permission.POST_NOTIFICATIONS"]
     },
     "web": {
