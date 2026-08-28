@@ -1,6 +1,6 @@
 import * as SplashScreen from 'expo-splash-screen';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, BackHandler, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, BackHandler, StyleSheet, useColorScheme, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { WebView, type WebViewMessageEvent, type WebViewNavigation } from 'react-native-webview';
 
@@ -22,6 +22,7 @@ import {
   type AppSessionPayload,
 } from '@/features/webview/lib/bridge';
 import { WEB_URL } from '@/shared/config/env';
+import { COLOR_TOKENS } from '@/shared/config/theme';
 
 /**
  * 세션의 주인은 WebView 쿠키다.
@@ -76,6 +77,8 @@ const HomeScreen = () => {
   const pushTokenRef = useRef<string | null>(null);
   const statusRef = useRef<SessionStatus>('booting');
   const insets = useSafeAreaInsets();
+  const scheme = useColorScheme();
+  const appBackground = COLOR_TOKENS[scheme === 'dark' ? 'dark' : 'light'].backgroundNormal;
 
   const [status, setStatus] = useState<SessionStatus>('booting');
   const [animationFinished, setAnimationFinished] = useState(false);
@@ -249,6 +252,10 @@ const HomeScreen = () => {
     canGoBackRef.current = navigationState.canGoBack;
     currentUrlRef.current = navigationState.url;
 
+    // 이 콜백은 로딩 시작 시점에도 불린다. 그때의 url 은 아직 리다이렉트 전이라
+    // /login 으로 갈 요청도 홈으로 보여 로그인된 것으로 오판하게 된다.
+    if (navigationState.loading) return;
+
     if (!isSurfOrigin(navigationState.url)) return;
 
     if (isLoginUrl(navigationState.url)) {
@@ -289,7 +296,7 @@ const HomeScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: appBackground }]}>
       <WebView
         ref={webViewRef}
         source={{ uri: WEB_URL }}
@@ -298,7 +305,7 @@ const HomeScreen = () => {
         allowsBackForwardNavigationGestures
         startInLoadingState
         renderLoading={() => (
-          <View style={styles.loading}>
+          <View style={[styles.loading, { backgroundColor: appBackground }]}>
             <ActivityIndicator color="#208AEF" />
           </View>
         )}
@@ -345,7 +352,6 @@ export default HomeScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0A0A',
   },
   webview: {
     flex: 1,
@@ -355,6 +361,5 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFill,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#0A0A0A',
   },
 });

@@ -3,7 +3,6 @@ import {
   getMessaging,
   getToken,
   onTokenRefresh,
-  registerDeviceForRemoteMessages,
   requestPermission,
 } from '@react-native-firebase/messaging';
 import { Platform } from 'react-native';
@@ -42,16 +41,12 @@ export const getPushToken = async () => {
   const granted = await requestPushPermission();
   if (!granted) return null;
 
-  const messaging = getMessaging();
-
+  // registerDeviceForRemoteMessages 는 부르지 않는다. RNFirebase 가 자동 등록하므로
+  // 불필요하고, 시뮬레이터에서는 APNs 가 없어 timeout 만 유발한다.
+  // 자동 등록을 끄려면 firebase.json 의 messaging_ios_auto_register_for_remote_messages 를 쓴다.
   try {
-    // iOS는 APNs 등록이 끝나야 FCM 토큰이 나온다.
-    // 시뮬레이터에는 APNs 가 없어 여기서 timeout 이 난다 — 실패해도 앱은 계속 동작해야 한다.
-    if (Platform.OS === 'ios') {
-      await registerDeviceForRemoteMessages(messaging);
-    }
-
-    return await getToken(messaging);
+    // 권한이 있어도 APNs 토큰이 없으면(시뮬레이터 등) 실패한다. 앱은 계속 동작해야 한다.
+    return await getToken(getMessaging());
   } catch (error) {
     console.warn('[push] FCM 토큰 발급 실패', error);
     return null;
