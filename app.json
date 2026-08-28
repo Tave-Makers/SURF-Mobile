@@ -48,7 +48,14 @@
         }
       ],
       "expo-apple-authentication",
-      "@react-native-firebase/app",
+      [
+        "@react-native-firebase/app",
+        {
+          "ios": {
+            "disableSPM": true
+          }
+        }
+      ],
       "@react-native-firebase/messaging",
       [
         "@react-native-kakao/core",
@@ -62,7 +69,8 @@
           }
         }
       ],
-      "expo-font"
+      "expo-font",
+      "./plugins/withModularHeaders.cjs"
     ],
     "experiments": {
       "typedRoutes": true,

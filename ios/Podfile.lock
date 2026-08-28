@@ -1,4 +1,5 @@
 PODS:
+  - Alamofire (5.9.1)
   - EXConstants (55.0.16):
     - ExpoModulesCore
   - EXJSONUtils (55.0.2)
@@ -177,7 +178,11 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
+  - ExpoAppleAuthentication (55.0.17):
+    - ExpoModulesCore
   - ExpoAsset (55.0.17):
+    - ExpoModulesCore
+  - ExpoCrypto (55.0.19):
     - ExpoModulesCore
   - ExpoDomWebView (55.0.6):
     - ExpoModulesCore
@@ -241,9 +246,74 @@ PODS:
   - EXUpdatesInterface (55.1.6):
     - ExpoModulesCore
   - FBLazyVector (0.83.6)
+  - Firebase/CoreOnly (12.18.0):
+    - FirebaseCore (~> 12.18.0)
+  - Firebase/Messaging (12.18.0):
+    - Firebase/CoreOnly
+    - FirebaseMessaging (~> 12.18.0)
+  - FirebaseCore (12.18.0):
+    - FirebaseCoreInternal (~> 12.18.0)
+    - GoogleUtilities/Environment (~> 8.1)
+    - GoogleUtilities/Logger (~> 8.1)
+  - FirebaseCoreExtension (12.18.0):
+    - FirebaseCore (~> 12.18.0)
+  - FirebaseCoreInternal (12.18.0):
+    - "GoogleUtilities/NSData+zlib (~> 8.1)"
+  - FirebaseInstallations (12.18.0):
+    - FirebaseCore (~> 12.18.0)
+    - GoogleUtilities/Environment (~> 8.1)
+    - GoogleUtilities/UserDefaults (~> 8.1)
+    - PromisesObjC (~> 2.4)
+  - FirebaseMessaging (12.18.0):
+    - FirebaseCore (~> 12.18.0)
+    - FirebaseInstallations (~> 12.18.0)
+    - GoogleDataTransport (~> 10.1)
+    - GoogleUtilities/AppDelegateSwizzler (~> 8.1)
+    - GoogleUtilities/Environment (~> 8.1)
+    - GoogleUtilities/Reachability (~> 8.1)
+    - GoogleUtilities/UserDefaults (~> 8.1)
+    - nanopb (~> 3.30910.0)
+  - GoogleDataTransport (10.1.1):
+    - nanopb (~> 3.30910.0)
+    - PromisesObjC (~> 2.4)
+  - GoogleUtilities/AppDelegateSwizzler (8.1.3):
+    - GoogleUtilities/Environment
+    - GoogleUtilities/Logger
+    - GoogleUtilities/Network
+    - GoogleUtilities/Privacy
+  - GoogleUtilities/Environment (8.1.3):
+    - GoogleUtilities/Privacy
+  - GoogleUtilities/Logger (8.1.3):
+    - GoogleUtilities/Environment
+    - GoogleUtilities/Privacy
+  - GoogleUtilities/Network (8.1.3):
+    - GoogleUtilities/Logger
+    - "GoogleUtilities/NSData+zlib"
+    - GoogleUtilities/Privacy
+    - GoogleUtilities/Reachability
+  - "GoogleUtilities/NSData+zlib (8.1.3)":
+    - GoogleUtilities/Privacy
+  - GoogleUtilities/Privacy (8.1.3)
+  - GoogleUtilities/Reachability (8.1.3):
+    - GoogleUtilities/Logger
+    - GoogleUtilities/Privacy
+  - GoogleUtilities/UserDefaults (8.1.3):
+    - GoogleUtilities/Logger
+    - GoogleUtilities/Privacy
   - hermes-engine (0.14.1):
     - hermes-engine/Pre-built (= 0.14.1)
   - hermes-engine/Pre-built (0.14.1)
+  - KakaoSDKAuth (2.22.0):
+    - KakaoSDKCommon (= 2.22.0)
+  - KakaoSDKCommon (2.22.0):
+    - KakaoSDKCommon/Common (= 2.22.0)
+    - KakaoSDKCommon/Network (= 2.22.0)
+  - KakaoSDKCommon/Common (2.22.0)
+  - KakaoSDKCommon/Network (2.22.0):
+    - Alamofire (~> 5.9.0)
+    - KakaoSDKCommon/Common (= 2.22.0)
+  - KakaoSDKUser (2.22.0):
+    - KakaoSDKAuth (= 2.22.0)
   - libavif/core (1.0.0)
   - libavif/libdav1d (1.0.0):
     - libavif/core
@@ -261,6 +331,36 @@ PODS:
   - libwebp/sharpyuv (1.5.0)
   - libwebp/webp (1.5.0):
     - libwebp/sharpyuv
+  - lottie-ios (4.6.0)
+  - lottie-react-native (7.3.8):
+    - hermes-engine
+    - lottie-ios (= 4.6.0)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-Core-prebuilt
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - ReactNativeDependencies
+    - Yoga
+  - nanopb (3.30910.0):
+    - nanopb/decode (= 3.30910.0)
+    - nanopb/encode (= 3.30910.0)
+  - nanopb/decode (3.30910.0)
+  - nanopb/encode (3.30910.0)
+  - PromisesObjC (2.4.1)
   - RCTDeprecation (0.83.6)
   - RCTRequired (0.83.6)
   - RCTSwiftUI (0.83.6)
@@ -2130,6 +2230,101 @@ PODS:
     - React-utils (= 0.83.6)
     - ReactNativeDependencies
   - ReactNativeDependencies (0.83.6)
+  - RNCKakaoCore (2.4.6):
+    - hermes-engine
+    - KakaoSDKCommon (= 2.22.0)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-Core-prebuilt
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - ReactNativeDependencies
+    - Yoga
+  - RNCKakaoUser (2.4.6):
+    - hermes-engine
+    - KakaoSDKUser (= 2.22.0)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-Core-prebuilt
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - ReactNativeDependencies
+    - RNCKakaoCore
+    - Yoga
+  - RNFBApp (26.3.2):
+    - Firebase/CoreOnly (= 12.18.0)
+    - hermes-engine
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-Core-prebuilt
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - ReactNativeDependencies
+    - Yoga
+  - RNFBMessaging (26.3.2):
+    - Firebase/Messaging (= 12.18.0)
+    - FirebaseCoreExtension (= 12.18.0)
+    - hermes-engine
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-Core-prebuilt
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - ReactNativeDependencies
+    - RNFBApp
+    - Yoga
   - RNScreens (4.23.0):
     - hermes-engine
     - RCTRequired
@@ -2177,6 +2372,51 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
+  - RNSVG (15.15.3):
+    - hermes-engine
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-Core-prebuilt
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - ReactNativeDependencies
+    - RNSVG/common (= 15.15.3)
+    - Yoga
+  - RNSVG/common (15.15.3):
+    - hermes-engine
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-Core-prebuilt
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - ReactNativeDependencies
+    - Yoga
   - SDWebImage (5.21.7):
     - SDWebImage/Core (= 5.21.7)
   - SDWebImage/Core (5.21.7)
@@ -2199,7 +2439,9 @@ DEPENDENCIES:
   - "expo-dev-launcher (from `../node_modules/.pnpm/expo-dev-launcher@55.0.36_expo@55.0.26/node_modules/expo-dev-launcher`)"
   - "expo-dev-menu (from `../node_modules/.pnpm/expo-dev-menu@55.0.30_expo@55.0.26/node_modules/expo-dev-menu`)"
   - "expo-dev-menu-interface (from `../node_modules/.pnpm/expo-dev-menu-interface@55.0.2_expo@55.0.26/node_modules/expo-dev-menu-interface/ios`)"
+  - "ExpoAppleAuthentication (from `../node_modules/.pnpm/expo-apple-authentication@55.0.17_expo@55.0.26_react-native@0.83.6_@babel+core@7.29.7_@types+react@19.2.17_react@19.2.0_/node_modules/expo-apple-authentication/ios`)"
   - "ExpoAsset (from `../node_modules/.pnpm/expo-asset@55.0.17_expo@55.0.26_react-native@0.83.6_@babel+core@7.29.7_@types+react@19._2d60fe34a383e10b8e68134bffdbb81d/node_modules/expo-asset/ios`)"
+  - "ExpoCrypto (from `../node_modules/.pnpm/expo-crypto@55.0.19_expo@55.0.26/node_modules/expo-crypto/ios`)"
   - "ExpoDomWebView (from `../node_modules/.pnpm/@expo+dom-webview@55.0.6_expo@55.0.26_react-native@0.83.6_@babel+core@7.29.7_@types+rea_765b7b61e0c799a8b6fb3ca0a779f8f6/node_modules/@expo/dom-webview/ios`)"
   - "ExpoFileSystem (from `../node_modules/.pnpm/expo-file-system@55.0.22_expo@55.0.26_react-native@0.83.6_@babel+core@7.29.7_@types+react@19.2.17_react@19.2.0_/node_modules/expo-file-system/ios`)"
   - "ExpoFont (from `../node_modules/.pnpm/expo-font@55.0.8_expo@55.0.26_react-native@0.83.6_@babel+core@7.29.7_@types+react@19.2.17_react@19.2.0__react@19.2.0/node_modules/expo-font/ios`)"
@@ -2217,6 +2459,7 @@ DEPENDENCIES:
   - "EXUpdatesInterface (from `../node_modules/.pnpm/expo-updates-interface@55.1.6_expo@55.0.26/node_modules/expo-updates-interface/ios`)"
   - "FBLazyVector (from `../node_modules/.pnpm/react-native@0.83.6_@babel+core@7.29.7_@types+react@19.2.17_react@19.2.0/node_modules/react-native/Libraries/FBLazyVector`)"
   - "hermes-engine (from `../node_modules/.pnpm/react-native@0.83.6_@babel+core@7.29.7_@types+react@19.2.17_react@19.2.0/node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)"
+  - "lottie-react-native (from `../node_modules/.pnpm/lottie-react-native@7.3.8_react-native@0.83.6_@babel+core@7.29.7_@types+react@19.2.17_react@19.2.0__react@19.2.0/node_modules/lottie-react-native`)"
   - "RCTDeprecation (from `../node_modules/.pnpm/react-native@0.83.6_@babel+core@7.29.7_@types+react@19.2.17_react@19.2.0/node_modules/react-native/ReactApple/Libraries/RCTFoundation/RCTDeprecation`)"
   - "RCTRequired (from `../node_modules/.pnpm/react-native@0.83.6_@babel+core@7.29.7_@types+react@19.2.17_react@19.2.0/node_modules/react-native/Libraries/Required`)"
   - "RCTSwiftUI (from `../node_modules/.pnpm/react-native@0.83.6_@babel+core@7.29.7_@types+react@19.2.17_react@19.2.0/node_modules/react-native/ReactApple/RCTSwiftUI`)"
@@ -2290,14 +2533,34 @@ DEPENDENCIES:
   - ReactCodegen (from `build/generated/ios/ReactCodegen`)
   - "ReactCommon/turbomodule/core (from `../node_modules/.pnpm/react-native@0.83.6_@babel+core@7.29.7_@types+react@19.2.17_react@19.2.0/node_modules/react-native/ReactCommon`)"
   - "ReactNativeDependencies (from `../node_modules/.pnpm/react-native@0.83.6_@babel+core@7.29.7_@types+react@19.2.17_react@19.2.0/node_modules/react-native/third-party-podspecs/ReactNativeDependencies.podspec`)"
+  - "RNCKakaoCore (from `../node_modules/.pnpm/@react-native-kakao+core@2.4.6_expo@55.0.26_react-native@0.83.6_@babel+core@7.29.7_@typ_509d819de4164a3e11c73d23ff4a6ead/node_modules/@react-native-kakao/core`)"
+  - "RNCKakaoUser (from `../node_modules/.pnpm/@react-native-kakao+user@2.4.6_@react-native-kakao+core@2.4.6_expo@55.0.26_react-native_f36e9e895c2b3712a061a3b7a1280c4f/node_modules/@react-native-kakao/user`)"
+  - "RNFBApp (from `../node_modules/.pnpm/@react-native-firebase+app@26.3.2_patch_hash=6ee5d172214b9038ba13ef9e9ee403338262b6e3d9_74d3f3caac226b5d5bd2535d0e0a41e8/node_modules/@react-native-firebase/app`)"
+  - "RNFBMessaging (from `../node_modules/.pnpm/@react-native-firebase+messaging@26.3.2_patch_hash=6bc7a008491da1ab61e153257a4fcc0c249e_37377a1acfba5b4dda694d6864f74478/node_modules/@react-native-firebase/messaging`)"
   - "RNScreens (from `../node_modules/.pnpm/react-native-screens@4.23.0_react-native@0.83.6_@babel+core@7.29.7_@types+react@19.2.17_react@19.2.0__react@19.2.0/node_modules/react-native-screens`)"
+  - "RNSVG (from `../node_modules/.pnpm/react-native-svg@15.15.3_react-native@0.83.6_@babel+core@7.29.7_@types+react@19.2.17_react@19.2.0__react@19.2.0/node_modules/react-native-svg`)"
   - "Yoga (from `../node_modules/.pnpm/react-native@0.83.6_@babel+core@7.29.7_@types+react@19.2.17_react@19.2.0/node_modules/react-native/ReactCommon/yoga`)"
 
 SPEC REPOS:
   trunk:
+    - Alamofire
+    - Firebase
+    - FirebaseCore
+    - FirebaseCoreExtension
+    - FirebaseCoreInternal
+    - FirebaseInstallations
+    - FirebaseMessaging
+    - GoogleDataTransport
+    - GoogleUtilities
+    - KakaoSDKAuth
+    - KakaoSDKCommon
+    - KakaoSDKUser
     - libavif
     - libdav1d
     - libwebp
+    - lottie-ios
+    - nanopb
+    - PromisesObjC
     - SDWebImage
     - SDWebImageAVIFCoder
     - SDWebImageSVGCoder
@@ -2320,8 +2583,12 @@ EXTERNAL SOURCES:
     :path: "../node_modules/.pnpm/expo-dev-menu@55.0.30_expo@55.0.26/node_modules/expo-dev-menu"
   expo-dev-menu-interface:
     :path: "../node_modules/.pnpm/expo-dev-menu-interface@55.0.2_expo@55.0.26/node_modules/expo-dev-menu-interface/ios"
+  ExpoAppleAuthentication:
+    :path: "../node_modules/.pnpm/expo-apple-authentication@55.0.17_expo@55.0.26_react-native@0.83.6_@babel+core@7.29.7_@types+react@19.2.17_react@19.2.0_/node_modules/expo-apple-authentication/ios"
   ExpoAsset:
     :path: "../node_modules/.pnpm/expo-asset@55.0.17_expo@55.0.26_react-native@0.83.6_@babel+core@7.29.7_@types+react@19._2d60fe34a383e10b8e68134bffdbb81d/node_modules/expo-asset/ios"
+  ExpoCrypto:
+    :path: "../node_modules/.pnpm/expo-crypto@55.0.19_expo@55.0.26/node_modules/expo-crypto/ios"
   ExpoDomWebView:
     :path: "../node_modules/.pnpm/@expo+dom-webview@55.0.6_expo@55.0.26_react-native@0.83.6_@babel+core@7.29.7_@types+rea_765b7b61e0c799a8b6fb3ca0a779f8f6/node_modules/@expo/dom-webview/ios"
   ExpoFileSystem:
@@ -2357,6 +2624,8 @@ EXTERNAL SOURCES:
   hermes-engine:
     :podspec: "../node_modules/.pnpm/react-native@0.83.6_@babel+core@7.29.7_@types+react@19.2.17_react@19.2.0/node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec"
     :tag: hermes-v0.14.1
+  lottie-react-native:
+    :path: "../node_modules/.pnpm/lottie-react-native@7.3.8_react-native@0.83.6_@babel+core@7.29.7_@types+react@19.2.17_react@19.2.0__react@19.2.0/node_modules/lottie-react-native"
   RCTDeprecation:
     :path: "../node_modules/.pnpm/react-native@0.83.6_@babel+core@7.29.7_@types+react@19.2.17_react@19.2.0/node_modules/react-native/ReactApple/Libraries/RCTFoundation/RCTDeprecation"
   RCTRequired:
@@ -2501,12 +2770,23 @@ EXTERNAL SOURCES:
     :path: "../node_modules/.pnpm/react-native@0.83.6_@babel+core@7.29.7_@types+react@19.2.17_react@19.2.0/node_modules/react-native/ReactCommon"
   ReactNativeDependencies:
     :podspec: "../node_modules/.pnpm/react-native@0.83.6_@babel+core@7.29.7_@types+react@19.2.17_react@19.2.0/node_modules/react-native/third-party-podspecs/ReactNativeDependencies.podspec"
+  RNCKakaoCore:
+    :path: "../node_modules/.pnpm/@react-native-kakao+core@2.4.6_expo@55.0.26_react-native@0.83.6_@babel+core@7.29.7_@typ_509d819de4164a3e11c73d23ff4a6ead/node_modules/@react-native-kakao/core"
+  RNCKakaoUser:
+    :path: "../node_modules/.pnpm/@react-native-kakao+user@2.4.6_@react-native-kakao+core@2.4.6_expo@55.0.26_react-native_f36e9e895c2b3712a061a3b7a1280c4f/node_modules/@react-native-kakao/user"
+  RNFBApp:
+    :path: "../node_modules/.pnpm/@react-native-firebase+app@26.3.2_patch_hash=6ee5d172214b9038ba13ef9e9ee403338262b6e3d9_74d3f3caac226b5d5bd2535d0e0a41e8/node_modules/@react-native-firebase/app"
+  RNFBMessaging:
+    :path: "../node_modules/.pnpm/@react-native-firebase+messaging@26.3.2_patch_hash=6bc7a008491da1ab61e153257a4fcc0c249e_37377a1acfba5b4dda694d6864f74478/node_modules/@react-native-firebase/messaging"
   RNScreens:
     :path: "../node_modules/.pnpm/react-native-screens@4.23.0_react-native@0.83.6_@babel+core@7.29.7_@types+react@19.2.17_react@19.2.0__react@19.2.0/node_modules/react-native-screens"
+  RNSVG:
+    :path: "../node_modules/.pnpm/react-native-svg@15.15.3_react-native@0.83.6_@babel+core@7.29.7_@types+react@19.2.17_react@19.2.0__react@19.2.0/node_modules/react-native-svg"
   Yoga:
     :path: "../node_modules/.pnpm/react-native@0.83.6_@babel+core@7.29.7_@types+react@19.2.17_react@19.2.0/node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
+  Alamofire: f36a35757af4587d8e4f4bfa223ad10be2422b8c
   EXConstants: dadbeba983acc30f855a919658a2b34fbd86615d
   EXJSONUtils: 04bc3807d351331a5fe154ce1da596ec15d99169
   EXManifests: 35b26ca30c8a6bd427d1cba20348cd3c43684bb2
@@ -2515,7 +2795,9 @@ SPEC CHECKSUMS:
   expo-dev-launcher: f61d325756363aa4622b09d189955659f1afe297
   expo-dev-menu: ff595953daf028b6bd9f0fa9b77bf58fbc41fa66
   expo-dev-menu-interface: 833795f4c98a674d36cbc12b11b21756c38e01e8
+  ExpoAppleAuthentication: a609c7b8d44e28b5661842c9cc03c2121c305e4a
   ExpoAsset: 7721c5c4ae2a7c3c8147a046727ac6c020b05648
+  ExpoCrypto: 219209dfd0fef126db1627b1b9ac989d6a3ce2d0
   ExpoDomWebView: b2e9d601f9cb77d3c97da73234e175b64be91928
   ExpoFileSystem: 61e663d0bbd1a973d324530d1d6ee559a5e5192c
   ExpoFont: a7e34a75bdfb703fa07a0e87807f836236608c76
@@ -2532,10 +2814,25 @@ SPEC CHECKSUMS:
   ExpoSystemUI: fbc4f8af83f2b8338c1de69a79624769536f09d1
   EXUpdatesInterface: 4c11f4d1594526258f14d09817dc407acbf24e3b
   FBLazyVector: 427fa1856a481856091061293ce865a75aa4f20f
+  Firebase: 5523dd53ebe603451b4e1befcd99fa20a5c015cd
+  FirebaseCore: 96787d19ee32dc2242cc487b301bc616afeb398b
+  FirebaseCoreExtension: a86bab02524ca2bff95dddab7a3fcad505c2ddeb
+  FirebaseCoreInternal: 93b2d5f9e184c6818a04433891c358b0720a6a38
+  FirebaseInstallations: 933b2747e8594084c9117b65e8358fce29d7ced7
+  FirebaseMessaging: 422bb80cbf8ff83e69e50bea4d4984fc4704f665
+  GoogleDataTransport: a24e58982ab3ba2f64d79613e027fe7f57e88539
+  GoogleUtilities: 4e0c2ad9fa0d0d18b5c4df8bf57b461cba35b0bb
   hermes-engine: 384f4338baa6b96beef50fe03557d6bea9327124
+  KakaoSDKAuth: 569b377eda622d93d4575240b8031cd658163eef
+  KakaoSDKCommon: d57127c339fc79e73aa8b236a4c77211c29924f1
+  KakaoSDKUser: 043bcd7e91454ebf3bf64f150c430e6f65f0a08d
   libavif: 5f8e715bea24debec477006f21ef9e95432e254d
   libdav1d: 23581a4d8ec811ff171ed5e2e05cd27bad64c39f
   libwebp: 02b23773aedb6ff1fd38cec7a77b81414c6842a8
+  lottie-ios: 8f959969761e9c45d70353667d00af0e5b9cadb3
+  lottie-react-native: d954917e9e5f3217eac0ca0eb3be75de412dea93
+  nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
+  PromisesObjC: 752c3227f599e3467650e47ea36f433eeb10c273
   RCTDeprecation: 9502b5eb8e3c9eb75ff5a333b2c591bab9d91e28
   RCTRequired: 0268a5d86aef1defea2e04289d74fdf3570197c1
   RCTSwiftUI: cff211c5e4d94e491dda240d663b8effd25296d7
@@ -2608,13 +2905,18 @@ SPEC CHECKSUMS:
   ReactCodegen: cde7048d692fe555b95a5b7e4f2f01e9616e3d6d
   ReactCommon: ba28cd4e7d9e24014d2772a80e32da020c732b00
   ReactNativeDependencies: 54bca4c2e0995ac4e2888f8b85b045010ff34785
+  RNCKakaoCore: 2c68b180090d28adceccc28c2995f933562e4d96
+  RNCKakaoUser: 9dc5308278038c944179a214b8db567f2b649ecd
+  RNFBApp: e9d69cd6467125f573fc5636abc123c0bbc64ba8
+  RNFBMessaging: cc8e5e0779408ccf3b870be25656f6952dc12964
   RNScreens: 02e62f995ceb94ea465864b3bf4d4767b87f0362
+  RNSVG: 0bd149b873018bc6e0e3321e2f6435bdba294460
   SDWebImage: e9fc87c1aab89a8ab1bbd74eba378c6f53be8abf
   SDWebImageAVIFCoder: afe194a084e851f70228e4be35ef651df0fc5c57
   SDWebImageSVGCoder: 15a300a97ec1c8ac958f009c02220ac0402e936c
   SDWebImageWebPCoder: e38c0a70396191361d60c092933e22c20d5b1380
   Yoga: e41d64347f52d634dd8c2f6bac33f95081959fd3
 
-PODFILE CHECKSUM: 125df6afbad1b5c0b16c6e0820f6d5aea7049c1e
+PODFILE CHECKSUM: 8c291f29fe281fd022f9e0e6cc95fd8850ca1abc
 
 COCOAPODS: 1.16.2
