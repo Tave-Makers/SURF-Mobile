@@ -1,25 +1,103 @@
-import { useEffect, useRef } from 'react';
+import * as SplashScreen from 'expo-splash-screen';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, BackHandler, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { WebView } from 'react-native-webview';
+import { WebView, type WebViewMessageEvent, type WebViewNavigation } from 'react-native-webview';
 
-const DEFAULT_WEB_URL = 'https://www.tavesurf.site/';
+import { isAppleSignInAvailable, signInWithApple } from '@/features/auth/lib/appleLogin';
+import { signInWithKakao, signOutFromKakao } from '@/features/auth/lib/kakaoLogin';
+import { LoginOverlay } from '@/features/auth/ui/LoginOverlay';
+import {
+  getPushToken,
+  PUSH_PLATFORM,
+  subscribeToTokenRefresh,
+} from '@/features/push/lib/pushToken';
+import { AnimatedSplash } from '@/features/splash/ui/AnimatedSplash';
+import {
+  buildInitScript,
+  buildPushTokenScript,
+  buildSessionScript,
+  parseBridgeMessage,
+  type AppSessionPayload,
+} from '@/features/webview/lib/bridge';
+import { WEB_URL } from '@/shared/config/env';
 
-const getWebUrl = () => {
-  const envWebUrl: unknown = process.env.EXPO_PUBLIC_WEB_URL;
+/**
+ * 세션의 주인은 WebView 쿠키다.
+ * 네이티브는 SDK 로그인 결과를 웹에 넘겨 세션을 만들어주고,
+ * 웹이 /login 으로 돌려보내면 로그아웃으로 판단한다.
+ */
+type SessionStatus =
+  | 'booting'
+  | 'signed-out'
+  | 'authenticating'
+  /** 로그인 화면의 약관·문의 링크로 공개 페이지를 보는 중. 오버레이를 잠시 걷는다. */
+  | 'browsing'
+  | 'signed-in';
 
-  return typeof envWebUrl === 'string' && envWebUrl.length > 0 ? envWebUrl : DEFAULT_WEB_URL;
+const LOGIN_PATH = '/login';
+const LOGIN_CALLBACK_PATH = '/login/callback';
+
+/** RN 의 URL 구현에 의존하지 않고 pathname 만 뽑는다. */
+const getPathname = (url: string) => {
+  const withoutProtocol = url.replace(/^[a-z]+:\/\//i, '');
+  const slashIndex = withoutProtocol.indexOf('/');
+  if (slashIndex === -1) return '/';
+
+  const [path] = withoutProtocol.slice(slashIndex).split(/[?#]/);
+  return path.length > 0 ? path : '/';
 };
 
-const WEB_URL = getWebUrl();
+const isSurfOrigin = (url: string) => url === WEB_URL || url.startsWith(`${WEB_URL}/`);
+
+const isLoginUrl = (url: string) => {
+  const pathname = getPathname(url);
+  if (pathname.startsWith(LOGIN_CALLBACK_PATH)) return false;
+
+  return pathname === LOGIN_PATH || pathname.startsWith(`${LOGIN_PATH}/`);
+};
+
+const isCancellation = (error: unknown) => {
+  if (typeof error !== 'object' || error === null) return false;
+
+  const code = (error as { code?: unknown }).code;
+  return typeof code === 'string' && code.toUpperCase().includes('CANCEL');
+};
+
+const toErrorMessage = (error: unknown, fallback: string) =>
+  error instanceof Error && error.message.length > 0 ? error.message : fallback;
 
 const HomeScreen = () => {
   const webViewRef = useRef<WebView>(null);
   const canGoBackRef = useRef(false);
+  const currentUrlRef = useRef(WEB_URL);
+  const pushRequestedRef = useRef(false);
+  const pushTokenRef = useRef<string | null>(null);
+  const statusRef = useRef<SessionStatus>('booting');
   const insets = useSafeAreaInsets();
+
+  const [status, setStatus] = useState<SessionStatus>('booting');
+  const [animationFinished, setAnimationFinished] = useState(false);
+  const [splashHidden, setSplashHidden] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [appleAvailable, setAppleAvailable] = useState(false);
+
+  statusRef.current = status;
+
+  useEffect(() => {
+    void isAppleSignInAvailable().then(setAppleAvailable);
+  }, []);
+
+  // 네이티브 정지 스플래시는 로티가 마운트되는 즉시 넘긴다.
+  // 이후 화면 전환은 AnimatedSplash 가 담당한다.
+  useEffect(() => {
+    void SplashScreen.hideAsync();
+  }, []);
 
   useEffect(() => {
     const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+      // 로그인 오버레이가 떠 있으면 WebView 히스토리를 건드리지 않는다
+      if (statusRef.current !== 'signed-in' && statusRef.current !== 'browsing') return false;
       if (!canGoBackRef.current) return false;
 
       webViewRef.current?.goBack();
@@ -29,19 +107,155 @@ const HomeScreen = () => {
     return () => subscription.remove();
   }, []);
 
-  // 네이티브 앱 WebView에서만 .is-native-app 클래스와 safe area CSS 변수를 주입한다.
-  // 일반 웹 브라우저에는 이 코드가 실행되지 않으므로 웹 레이아웃은 전혀 영향받지 않는다.
-  const injectedSafeArea = `
-    (function () {
-      var root = document.documentElement;
-      root.classList.add('is-native-app');
-      root.style.setProperty('--sat', '${insets.top}px');
-      root.style.setProperty('--sar', '${insets.right}px');
-      root.style.setProperty('--sab', '${insets.bottom}px');
-      root.style.setProperty('--sal', '${insets.left}px');
+  // window 에 심은 값은 문서가 새로 로드되면 날아가므로 토큰을 들고 있다가 매 로드마다 다시 넣는다
+  const injectPushToken = useCallback((token: string) => {
+    pushTokenRef.current = token;
+    webViewRef.current?.injectJavaScript(buildPushTokenScript(token, PUSH_PLATFORM));
+  }, []);
+
+  // 로그인 직후 FCM 토큰을 웹에 넘긴다. 등록은 웹의 인증된 프록시가 담당한다.
+  useEffect(() => {
+    if (status !== 'signed-in' || pushRequestedRef.current) return;
+
+    pushRequestedRef.current = true;
+    let cancelled = false;
+
+    void (async () => {
+      const token = await getPushToken();
+      if (cancelled || token === null) return;
+
+      injectPushToken(token);
     })();
-    true;
-  `;
+
+    return () => {
+      cancelled = true;
+    };
+  }, [status, injectPushToken]);
+
+  useEffect(
+    () =>
+      subscribeToTokenRefresh((token) => {
+        if (statusRef.current !== 'signed-in') return;
+
+        injectPushToken(token);
+      }),
+    [injectPushToken],
+  );
+
+  const startSession = useCallback((payload: AppSessionPayload) => {
+    // SURF 오리진이 아닌 페이지에는 로그인 토큰을 절대 주입하지 않는다
+    if (!isSurfOrigin(currentUrlRef.current)) {
+      setStatus('signed-out');
+      setErrorMessage('로그인 페이지를 다시 불러오는 중이에요. 잠시 후 다시 시도해주세요.');
+      webViewRef.current?.injectJavaScript(
+        `window.location.replace(${JSON.stringify(`${WEB_URL}${LOGIN_PATH}`)});true;`,
+      );
+      return;
+    }
+
+    setErrorMessage(null);
+    setStatus('authenticating');
+    webViewRef.current?.injectJavaScript(buildSessionScript(payload));
+  }, []);
+
+  const handleKakaoPress = useCallback(() => {
+    void (async () => {
+      setErrorMessage(null);
+      setStatus('authenticating');
+
+      try {
+        const accessToken = await signInWithKakao();
+        startSession({ provider: 'kakao', accessToken });
+      } catch (error) {
+        await signOutFromKakao();
+        setStatus('signed-out');
+        setErrorMessage(
+          isCancellation(error) ? null : toErrorMessage(error, '카카오 로그인에 실패했어요.'),
+        );
+      }
+    })();
+  }, [startSession]);
+
+  const handleApplePress = useCallback(() => {
+    void (async () => {
+      setErrorMessage(null);
+      setStatus('authenticating');
+
+      try {
+        const credential = await signInWithApple();
+        startSession({ provider: 'apple', ...credential });
+      } catch (error) {
+        setStatus('signed-out');
+        setErrorMessage(
+          isCancellation(error) ? null : toErrorMessage(error, 'Apple 로그인에 실패했어요.'),
+        );
+      }
+    })();
+  }, [startSession]);
+
+  // 약관·문의는 WebView 의 공개 페이지로 보낸다. 그 페이지의 헤더 뒤로가기로 /login 에
+  // 돌아오면 handleNavigationStateChange 가 다시 signed-out 으로 되돌린다.
+  const handleLinkPress = useCallback((path: string) => {
+    setStatus('browsing');
+    webViewRef.current?.injectJavaScript(
+      `window.location.href = ${JSON.stringify(`${WEB_URL}${path}`)};true;`,
+    );
+  }, []);
+
+  const handleMessage = useCallback((event: WebViewMessageEvent) => {
+    const message = parseBridgeMessage(event.nativeEvent.data);
+    if (message === null) return;
+
+    if (message.type === 'LOGGED_OUT') {
+      pushRequestedRef.current = false;
+      pushTokenRef.current = null;
+      setStatus('signed-out');
+      return;
+    }
+
+    if (message.ok) {
+      setErrorMessage(null);
+      setStatus('signed-in');
+      return;
+    }
+
+    void signOutFromKakao();
+    pushRequestedRef.current = false;
+    pushTokenRef.current = null;
+    setStatus('signed-out');
+    setErrorMessage(message.message ?? '로그인에 실패했어요. 잠시 후 다시 시도해주세요.');
+  }, []);
+
+  const handleNavigationStateChange = useCallback((navigationState: WebViewNavigation) => {
+    canGoBackRef.current = navigationState.canGoBack;
+    currentUrlRef.current = navigationState.url;
+
+    if (!isSurfOrigin(navigationState.url)) return;
+
+    if (isLoginUrl(navigationState.url)) {
+      pushRequestedRef.current = false;
+      pushTokenRef.current = null;
+      setStatus((previous) => (previous === 'authenticating' ? previous : 'signed-out'));
+      return;
+    }
+
+    setStatus((previous) => (previous === 'booting' ? 'signed-in' : previous));
+  }, []);
+
+  const initScript = buildInitScript(insets);
+
+  const handleLoadEnd = () => {
+    // 첫 로드가 SURF 오리진에 도달하지 못해도(네트워크 실패, 외부 리다이렉트)
+    // 스플래시에 갇히지 않도록 booting 을 풀어준다
+    setStatus((previous) => (previous === 'booting' ? 'signed-in' : previous));
+
+    webViewRef.current?.injectJavaScript(initScript);
+
+    const pushToken = pushTokenRef.current;
+    if (pushToken !== null) {
+      webViewRef.current?.injectJavaScript(buildPushTokenScript(pushToken, PUSH_PLATFORM));
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -66,13 +280,31 @@ const HomeScreen = () => {
         webviewDebuggingEnabled={__DEV__}
         contentInsetAdjustmentBehavior="never"
         automaticallyAdjustContentInsets={false}
-        injectedJavaScriptBeforeContentLoaded={injectedSafeArea}
+        injectedJavaScriptBeforeContentLoaded={initScript}
         // SPA 라우팅 등으로 document가 교체돼도 클래스/변수가 유지되도록 재주입
-        onLoadEnd={() => webViewRef.current?.injectJavaScript(injectedSafeArea)}
-        onNavigationStateChange={(navigationState) => {
-          canGoBackRef.current = navigationState.canGoBack;
-        }}
+        onLoadEnd={handleLoadEnd}
+        onMessage={handleMessage}
+        onNavigationStateChange={handleNavigationStateChange}
       />
+
+      {(status === 'signed-out' || status === 'authenticating') && (
+        <LoginOverlay
+          pending={status === 'authenticating'}
+          errorMessage={errorMessage}
+          appleAvailable={appleAvailable}
+          onKakaoPress={handleKakaoPress}
+          onApplePress={handleApplePress}
+          onLinkPress={handleLinkPress}
+        />
+      )}
+
+      {!splashHidden && (
+        <AnimatedSplash
+          ready={animationFinished && status !== 'booting'}
+          onAnimationFinish={() => setAnimationFinished(true)}
+          onFadeOutEnd={() => setSplashHidden(true)}
+        />
+      )}
     </View>
   );
 };
@@ -89,7 +321,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   loading: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#0A0A0A',
