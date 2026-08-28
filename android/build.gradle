@@ -18,6 +18,9 @@ allprojects {
     google()
     mavenCentral()
     maven { url 'https://www.jitpack.io' }
+// @generated begin surf-kakao-maven - expo prebuild (DO NOT MODIFY) sync-4c22f72c6f7bf2461f76d8caa174f94ac9ec1c49
+    maven { url 'https://devrepo.kakao.com/nexus/content/groups/public/' }
+// @generated end surf-kakao-maven
   }
 }
 
