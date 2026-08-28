@@ -21,6 +21,34 @@ export const COLOR_TOKENS = {
 
 export const FONT_FAMILY = 'WantedSans';
 
+/**
+ * packages/ui/styles/scheme-tokens.css 의 --spacing-* 스케일.
+ * Tailwind 기본(4px 배수)이 아니라 convert-scheme.ts 가 생성한 커스텀 값이므로
+ * px-15 를 60px 처럼 환산하면 안 된다.
+ */
+export const SPACING = {
+  1: 0,
+  2: 1,
+  3: 2,
+  4: 3,
+  5: 4,
+  6: 5,
+  7: 6,
+  8: 8,
+  9: 9,
+  10: 10,
+  11: 12,
+  12: 14,
+  13: 16,
+  14: 18,
+  15: 20,
+  16: 24,
+  17: 28,
+  18: 32,
+  19: 40,
+  20: 48,
+} as const;
+
 /** --radius-4 */
 export const RADIUS_4 = 8;
 

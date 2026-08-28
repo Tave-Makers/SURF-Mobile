@@ -5,7 +5,6 @@ import { Animated, StyleSheet, useAnimatedValue, useColorScheme } from 'react-na
 import splashAnimation from '../../../../assets/lottie/surf-splash.json';
 import { COLOR_TOKENS } from '@/shared/config/theme';
 
-
 const FADE_OUT_MS = 260;
 
 type AnimatedSplashProps = {

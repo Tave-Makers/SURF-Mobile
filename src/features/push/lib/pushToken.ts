@@ -44,12 +44,13 @@ export const getPushToken = async () => {
 
   const messaging = getMessaging();
 
-  // iOS는 APNs 등록이 끝나야 FCM 토큰이 나온다
-  if (Platform.OS === 'ios') {
-    await registerDeviceForRemoteMessages(messaging);
-  }
-
   try {
+    // iOS는 APNs 등록이 끝나야 FCM 토큰이 나온다.
+    // 시뮬레이터에는 APNs 가 없어 여기서 timeout 이 난다 — 실패해도 앱은 계속 동작해야 한다.
+    if (Platform.OS === 'ios') {
+      await registerDeviceForRemoteMessages(messaging);
+    }
+
     return await getToken(messaging);
   } catch (error) {
     console.warn('[push] FCM 토큰 발급 실패', error);

@@ -1,12 +1,13 @@
+import { Fragment } from 'react';
 import { Pressable, StyleSheet, Text, useColorScheme, View } from 'react-native';
 
-import { CAPTION_4, COLOR_TOKENS, RADIUS_4, TITLE_2 } from '@/shared/config/theme';
+import { CAPTION_4, COLOR_TOKENS, RADIUS_4, SPACING, TITLE_2 } from '@/shared/config/theme';
 import { AppleIcon, KakaoIcon, SurfLogo } from '@/shared/ui/BrandIcons';
 
 /**
  * 웹 /login (apps/web/src/app-pages/login/ui/LoginPage.tsx) 을 그대로 옮긴 화면.
  * 앱은 이 오버레이가 WebView 를 덮으므로, 여기서 웹과 달라지면 그대로 앱의 첫 화면이
- * 웹과 달라진다. 간격·색·타이포는 전부 웹 토큰에서 가져온 값이다.
+ * 웹과 달라진다. 구조·간격·색·타이포는 전부 웹 마크업과 packages/ui 토큰을 따른다.
  */
 
 const POLICY_LINKS = [
@@ -42,64 +43,67 @@ export const LoginOverlay = ({
       <SurfLogo />
 
       <View style={styles.stack}>
-        <View style={styles.buttons}>
-          {errorMessage !== null && (
-            <Text style={[styles.error, { color: c.foregroundTertiary }]}>{errorMessage}</Text>
-          )}
+        {errorMessage !== null && (
+          <Text style={[styles.caption, { color: c.foregroundTertiary }]}>{errorMessage}</Text>
+        )}
 
+        <Pressable
+          accessibilityRole="button"
+          disabled={pending}
+          onPress={onKakaoPress}
+          style={({ pressed }) => [styles.button, styles.kakao, pressed && styles.pressed]}
+        >
+          <KakaoIcon />
+          <Text style={[styles.buttonLabel, { color: c.foregroundStaticBlack }]}>
+            카카오로 로그인하기
+          </Text>
+        </Pressable>
+
+        {appleAvailable && (
           <Pressable
             accessibilityRole="button"
             disabled={pending}
-            onPress={onKakaoPress}
-            style={({ pressed }) => [styles.button, styles.kakao, pressed && styles.pressed]}
+            onPress={onApplePress}
+            style={({ pressed }) => [
+              styles.button,
+              { backgroundColor: c.backgroundNormalInverse },
+              pressed && styles.pressed,
+            ]}
           >
-            <KakaoIcon />
-            <Text style={[styles.buttonLabel, { color: c.foregroundStaticBlack }]}>
-              카카오로 로그인하기
+            <AppleIcon color={c.foregroundNormalReverse} />
+            <Text style={[styles.buttonLabel, { color: c.foregroundNormalReverse }]}>
+              애플로 로그인하기
             </Text>
           </Pressable>
-
-          {appleAvailable && (
-            <Pressable
-              accessibilityRole="button"
-              disabled={pending}
-              onPress={onApplePress}
-              style={({ pressed }) => [
-                styles.button,
-                { backgroundColor: c.backgroundNormalInverse },
-                pressed && styles.pressed,
-              ]}
-            >
-              <AppleIcon color={c.foregroundNormalReverse} />
-              <Text style={[styles.buttonLabel, { color: c.foregroundNormalReverse }]}>
-                애플로 로그인하기
-              </Text>
-            </Pressable>
-          )}
-        </View>
+        )}
 
         <View accessibilityLabel="서비스 정책 및 문의" style={styles.nav}>
           <View style={styles.policyRow}>
             {POLICY_LINKS.map(({ path, label }, index) => (
-              <View key={path} style={styles.policyItem}>
+              <Fragment key={path}>
                 {index > 0 && (
-                  <Text style={[styles.caption, { color: c.foregroundTertiary }]}>|</Text>
+                  <Text
+                    accessibilityElementsHidden
+                    style={[styles.caption, { color: c.foregroundTertiary }]}
+                  >
+                    |
+                  </Text>
                 )}
                 <Text
                   accessibilityRole="link"
                   onPress={() => onLinkPress(path)}
-                  style={[styles.caption, styles.link, { color: c.foregroundTertiary }]}
+                  style={[styles.caption, { color: c.foregroundTertiary }]}
                 >
                   {label}
                 </Text>
-              </View>
+              </Fragment>
             ))}
           </View>
 
           <Text
             accessibilityRole="link"
             onPress={() => onLinkPress(SUPPORT_LINK.path)}
-            style={[styles.caption, styles.link, { color: c.foregroundTertiary }]}
+            style={[styles.caption, { color: c.foregroundTertiary }]}
           >
             {SUPPORT_LINK.label}
           </Text>
@@ -115,16 +119,11 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFill,
     alignItems: 'center',
     gap: 108,
-    paddingHorizontal: 60,
+    paddingHorizontal: SPACING[15],
     paddingTop: 268.96,
   },
   // w-full flex-col items-center gap-[1.25rem]
   stack: {
-    width: '100%',
-    alignItems: 'center',
-    gap: 20,
-  },
-  buttons: {
     width: '100%',
     alignItems: 'center',
     gap: 20,
@@ -146,29 +145,19 @@ const styles = StyleSheet.create({
   pressed: {
     opacity: 0.7,
   },
-  error: {
-    ...CAPTION_4,
-    textAlign: 'center',
-  },
   // flex-col items-center gap-y-4
   nav: {
     alignItems: 'center',
-    gap: 16,
+    gap: SPACING[4],
   },
   // items-center justify-center gap-x-6
   policyRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 24,
+    gap: SPACING[6],
   },
-  policyItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 24,
-  },
+  // 클래스에 underline 이 있지만 .text-caption-caption4 의 text-decoration: none 이
+  // 덮어써서 웹에서는 밑줄이 그어지지 않는다. 실측값(textDecorationLine: none)을 따른다.
   caption: CAPTION_4,
-  link: {
-    textDecorationLine: 'underline',
-  },
 });

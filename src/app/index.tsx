@@ -246,8 +246,15 @@ const HomeScreen = () => {
 
   const handleLoadEnd = () => {
     // 첫 로드가 SURF 오리진에 도달하지 못해도(네트워크 실패, 외부 리다이렉트)
-    // 스플래시에 갇히지 않도록 booting 을 풀어준다
-    setStatus((previous) => (previous === 'booting' ? 'signed-in' : previous));
+    // 스플래시에 갇히지 않도록 booting 을 풀어준다.
+    // 무조건 signed-in 으로 두면 /login 에 있는데도 잠깐 로그인 상태가 되어
+    // 푸시 토큰 발급이 먼저 돌아버리므로 URL 로 판정한다
+    setStatus((previous) => {
+      if (previous !== 'booting') return previous;
+
+      const url = currentUrlRef.current;
+      return isSurfOrigin(url) && !isLoginUrl(url) ? 'signed-in' : 'signed-out';
+    });
 
     webViewRef.current?.injectJavaScript(initScript);
 
