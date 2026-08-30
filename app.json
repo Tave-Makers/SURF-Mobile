@@ -14,6 +14,8 @@
       "googleServicesFile": "./firebase/GoogleService-Info.plist",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
+        "NSCameraUsageDescription": "사진을 촬영할 때 카메라를 사용합니다.",
+        "NSPhotoLibraryUsageDescription": "사진을 등록할 때 사진 보관함을 사용합니다.",
         "UIBackgroundModes": ["remote-notification"]
       },
       "entitlements": {
