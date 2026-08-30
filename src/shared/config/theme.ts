@@ -6,6 +6,11 @@ export const COLOR_TOKENS = {
   light: {
     backgroundNormal: '#ffffff',
     backgroundNormalInverse: '#12141c',
+    backgroundNormalInverseAlpha: '#21222ce6',
+    backgroundNormalLighter: '#ffffff',
+    foregroundNormal: '#191b24',
+    foregroundNormalLighter: '#2e303e',
+    foregroundPrimary: '#4169e1',
     foregroundNormalReverse: '#f4f6f8',
     foregroundStaticBlack: '#12141c',
     foregroundTertiary: '#9da6be',
@@ -13,6 +18,11 @@ export const COLOR_TOKENS = {
   dark: {
     backgroundNormal: '#12141c',
     backgroundNormalInverse: '#ffffff',
+    backgroundNormalInverseAlpha: '#f9fafbe6',
+    backgroundNormalLighter: '#21222c',
+    foregroundNormal: '#f4f6f8',
+    foregroundNormalLighter: '#e2e8ee',
+    foregroundPrimary: '#4c76f6',
     foregroundNormalReverse: '#191b24',
     foregroundStaticBlack: '#12141c',
     foregroundTertiary: '#9da6be',
@@ -58,6 +68,9 @@ export const SPACING = {
   20: 48,
 } as const;
 
+/** --radius-3 */
+export const RADIUS_3 = 4;
+
 /** --radius-4 */
 export const RADIUS_4 = 8;
 
@@ -68,6 +81,24 @@ export const TITLE_2 = {
   lineHeight: 22,
   fontSize: 16,
   letterSpacing: -0.17,
+} as const;
+
+/** .text-body-body6 — title2 와 값은 같지만 웹 클래스 대응을 남겨둔다 */
+export const BODY_6 = {
+  fontFamily: FONT_FAMILY.semiBold,
+  fontWeight: '600',
+  lineHeight: 22,
+  fontSize: 16,
+  letterSpacing: -0.17,
+} as const;
+
+/** .text-body-body9 */
+export const BODY_9 = {
+  fontFamily: FONT_FAMILY.regular,
+  fontWeight: '400',
+  lineHeight: 20,
+  fontSize: 14,
+  letterSpacing: -0.32,
 } as const;
 
 /** .text-caption-caption4 */

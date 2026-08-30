@@ -23,6 +23,8 @@ import {
 } from '@/features/webview/lib/bridge';
 import { WEB_URL } from '@/shared/config/env';
 import { COLOR_TOKENS } from '@/shared/config/theme';
+import { AlertDialog } from '@/shared/ui/AlertDialog';
+import { Toast } from '@/shared/ui/Toast';
 
 /**
  * 세션의 주인은 WebView 쿠키다.
@@ -48,6 +50,18 @@ const LOGIN_CALLBACK_PATH = '/login/callback';
  */
 const SIGNED_IN_SETTLE_MS = 1_200;
 
+/**
+ * 웹 LoginPage 는 ?msg= 를 읽어 알럿(pending)이나 토스트(그 외)를 띄운다.
+ * 앱에서는 그 화면을 네이티브 LoginOverlay 가 덮고 있어 웹이 띄운 안내가 보이지 않으므로,
+ * 네이티브가 같은 값을 읽어 같은 안내를 대신 띄운다. 문구는 웹과 한 글자도 다르면 안 된다.
+ */
+const LOGIN_ALERTS: Record<string, { title: string; infoText: string }> = {
+  pending: {
+    title: '회원가입 대기중이에요!',
+    infoText: '회원 승인 절차가 완료되면 정상적으로 SURF를 이용하실 수 있습니다.',
+  },
+};
+
 /** RN 의 URL 구현에 의존하지 않고 pathname 만 뽑는다. */
 const getPathname = (url: string) => {
   const withoutProtocol = url.replace(/^[a-z]+:\/\//i, '');
@@ -56,6 +70,27 @@ const getPathname = (url: string) => {
 
   const [path] = withoutProtocol.slice(slashIndex).split(/[?#]/);
   return path.length > 0 ? path : '/';
+};
+
+/** 같은 이유로 쿼리 값도 직접 뽑는다. */
+const getQueryValue = (url: string, key: string) => {
+  const queryIndex = url.indexOf('?');
+  if (queryIndex === -1) return null;
+
+  const [query] = url.slice(queryIndex + 1).split('#');
+
+  for (const pair of query.split('&')) {
+    const equalIndex = pair.indexOf('=');
+    if (equalIndex === -1 || pair.slice(0, equalIndex) !== key) continue;
+
+    try {
+      return decodeURIComponent(pair.slice(equalIndex + 1).replace(/\+/g, ' '));
+    } catch {
+      return null;
+    }
+  }
+
+  return null;
 };
 
 const isSurfOrigin = (url: string) => url === WEB_URL || url.startsWith(`${WEB_URL}/`);
@@ -85,6 +120,9 @@ const HomeScreen = () => {
   const pushTokenRef = useRef<string | null>(null);
   const statusRef = useRef<SessionStatus>('booting');
   const signedInTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const toastIdRef = useRef(0);
+  /** 같은 안내를 두 번 띄우지 않도록 마지막으로 처리한 로그인 URL 을 기억한다 */
+  const noticeUrlRef = useRef<string | null>(null);
   /** 지난 실행이 로그인 상태였다면 /login 리다이렉트를 기다릴 이유가 없다 */
   const settleDelayRef = useRef<number>(SIGNED_IN_SETTLE_MS);
   const insets = useSafeAreaInsets();
@@ -94,10 +132,34 @@ const HomeScreen = () => {
   const [status, setStatus] = useState<SessionStatus>('booting');
   const [animationFinished, setAnimationFinished] = useState(false);
   const [splashHidden, setSplashHidden] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ id: number; text: string } | null>(null);
+  const [alert, setAlert] = useState<{ title: string; infoText: string } | null>(null);
   const [appleAvailable, setAppleAvailable] = useState(false);
 
   statusRef.current = status;
+
+  // 웹 toastStore.show 와 같은 자리. key 가 바뀌면 Toast 의 타이머도 다시 시작한다
+  const showToast = useCallback((text: string) => {
+    toastIdRef.current += 1;
+    setToast({ id: toastIdRef.current, text });
+  }, []);
+
+  const hideToast = useCallback(() => setToast(null), []);
+
+  const showLoginNotice = useCallback(
+    (msg: string | null) => {
+      if (msg === null || msg.length === 0) return;
+
+      const alertContent = LOGIN_ALERTS[msg];
+      if (alertContent !== undefined) {
+        setAlert(alertContent);
+        return;
+      }
+
+      showToast(msg);
+    },
+    [showToast],
+  );
 
   const cancelSignedIn = useCallback(() => {
     // 여기로 오는 경로는 전부 로그아웃이 확인된 시점이다.
@@ -215,23 +277,21 @@ const HomeScreen = () => {
       if (!isSurfOrigin(currentUrlRef.current)) {
         cancelSignedIn();
         setStatus('signed-out');
-        setErrorMessage('로그인 페이지를 다시 불러오는 중이에요. 잠시 후 다시 시도해주세요.');
+        showToast('로그인 페이지를 다시 불러오는 중이에요. 잠시 후 다시 시도해주세요.');
         webViewRef.current?.injectJavaScript(
           `window.location.replace(${JSON.stringify(`${WEB_URL}${LOGIN_PATH}`)});true;`,
         );
         return;
       }
 
-      setErrorMessage(null);
       setStatus('authenticating');
       webViewRef.current?.injectJavaScript(buildSessionScript(payload));
     },
-    [cancelSignedIn],
+    [cancelSignedIn, showToast],
   );
 
   const handleKakaoPress = useCallback(() => {
     void (async () => {
-      setErrorMessage(null);
       setStatus('authenticating');
 
       try {
@@ -240,16 +300,16 @@ const HomeScreen = () => {
       } catch (error) {
         await signOutFromKakao();
         setStatus('signed-out');
-        setErrorMessage(
-          isCancellation(error) ? null : toErrorMessage(error, '카카오 로그인에 실패했어요.'),
-        );
+        // 사용자가 직접 취소한 건 알릴 것이 없다
+        if (isCancellation(error)) return;
+
+        showToast(toErrorMessage(error, '카카오 로그인에 실패했어요.'));
       }
     })();
-  }, [startSession]);
+  }, [startSession, showToast]);
 
   const handleApplePress = useCallback(() => {
     void (async () => {
-      setErrorMessage(null);
       setStatus('authenticating');
 
       try {
@@ -257,12 +317,12 @@ const HomeScreen = () => {
         startSession({ provider: 'apple', ...credential });
       } catch (error) {
         setStatus('signed-out');
-        setErrorMessage(
-          isCancellation(error) ? null : toErrorMessage(error, 'Apple 로그인에 실패했어요.'),
-        );
+        if (isCancellation(error)) return;
+
+        showToast(toErrorMessage(error, 'Apple 로그인에 실패했어요.'));
       }
     })();
-  }, [startSession]);
+  }, [startSession, showToast]);
 
   // 약관·문의는 WebView 의 공개 페이지로 보낸다. 그 페이지의 헤더 뒤로가기로 /login 에
   // 돌아오면 handleNavigationStateChange 가 다시 signed-out 으로 되돌린다.
@@ -287,7 +347,6 @@ const HomeScreen = () => {
       }
 
       if (message.ok) {
-        setErrorMessage(null);
         setStatus('signed-in');
         return;
       }
@@ -297,15 +356,22 @@ const HomeScreen = () => {
       pushRequestedRef.current = false;
       pushTokenRef.current = null;
       setStatus('signed-out');
-      setErrorMessage(message.message ?? '로그인에 실패했어요. 잠시 후 다시 시도해주세요.');
+      showToast(message.message ?? '로그인에 실패했어요. 잠시 후 다시 시도해주세요.');
     },
-    [cancelSignedIn],
+    [cancelSignedIn, showToast],
   );
 
   const handleNavigationStateChange = useCallback(
     (navigationState: WebViewNavigation) => {
       canGoBackRef.current = navigationState.canGoBack;
       currentUrlRef.current = navigationState.url;
+
+      // 로딩이 끝나기 전에 msg 를 읽는다. 웹이 hydration 직후 router.replace 로 지워버려서
+      // loading=false 이벤트에는 이미 사라져 있을 수 있다
+      if (isLoginUrl(navigationState.url) && noticeUrlRef.current !== navigationState.url) {
+        noticeUrlRef.current = navigationState.url;
+        showLoginNotice(getQueryValue(navigationState.url, 'msg'));
+      }
 
       // 이 콜백은 로딩 시작 시점에도 불린다. 그때의 url 은 아직 리다이렉트 전이라
       // /login 으로 갈 요청도 홈으로 보여 로그인된 것으로 오판하게 된다.
@@ -327,7 +393,7 @@ const HomeScreen = () => {
       // 다만 루트(/)는 미로그인이어도 여기까지 오므로 곧바로 확정하지 않는다
       scheduleSignedIn();
     },
-    [cancelSignedIn, scheduleSignedIn],
+    [cancelSignedIn, scheduleSignedIn, showLoginNotice],
   );
 
   const initScript = buildInitScript(insets);
@@ -393,11 +459,20 @@ const HomeScreen = () => {
       {(status === 'signed-out' || status === 'authenticating') && (
         <LoginOverlay
           pending={status === 'authenticating'}
-          errorMessage={errorMessage}
           appleAvailable={appleAvailable}
           onKakaoPress={handleKakaoPress}
           onApplePress={handleApplePress}
           onLinkPress={handleLinkPress}
+        />
+      )}
+
+      {toast !== null && <Toast key={toast.id} text={toast.text} onHide={hideToast} />}
+
+      {alert !== null && (
+        <AlertDialog
+          title={alert.title}
+          infoText={alert.infoText}
+          onConfirm={() => setAlert(null)}
         />
       )}
 

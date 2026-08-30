@@ -20,7 +20,6 @@ const SUPPORT_LINK = { path: '/support', label: '문의' } as const;
 
 type LoginOverlayProps = {
   pending: boolean;
-  errorMessage: string | null;
   appleAvailable: boolean;
   onKakaoPress: () => void;
   onApplePress: () => void;
@@ -29,7 +28,6 @@ type LoginOverlayProps = {
 
 export const LoginOverlay = ({
   pending,
-  errorMessage,
   appleAvailable,
   onKakaoPress,
   onApplePress,
@@ -43,10 +41,6 @@ export const LoginOverlay = ({
       <SurfLogo />
 
       <View style={styles.stack}>
-        {errorMessage !== null && (
-          <Text style={[styles.caption, { color: c.foregroundTertiary }]}>{errorMessage}</Text>
-        )}
-
         <Pressable
           accessibilityRole="button"
           disabled={pending}
