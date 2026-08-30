@@ -19,7 +19,16 @@ export const COLOR_TOKENS = {
   },
 } as const;
 
-export const FONT_FAMILY = 'WantedSans';
+/**
+ * RN iOS 는 가변 폰트의 wght 축을 고르지 못해 기본 인스턴스(400)만 등록한다.
+ * 그래서 가변 폰트 대신 굵기별 정적 서체를 번들하고 fontFamily 로 굵기를 고른다.
+ * fontWeight 를 함께 주는 건 폰트에 없는 글리프가 시스템 폰트로 폴백될 때
+ * 굵기까지 따라가게 하기 위한 안전장치다.
+ */
+export const FONT_FAMILY = {
+  regular: 'WantedSans-Regular',
+  semiBold: 'WantedSans-SemiBold',
+} as const;
 
 /**
  * packages/ui/styles/scheme-tokens.css 의 --spacing-* 스케일.
@@ -54,7 +63,7 @@ export const RADIUS_4 = 8;
 
 /** .text-title-title2 */
 export const TITLE_2 = {
-  fontFamily: FONT_FAMILY,
+  fontFamily: FONT_FAMILY.semiBold,
   fontWeight: '600',
   lineHeight: 22,
   fontSize: 16,
@@ -63,7 +72,7 @@ export const TITLE_2 = {
 
 /** .text-caption-caption4 */
 export const CAPTION_4 = {
-  fontFamily: FONT_FAMILY,
+  fontFamily: FONT_FAMILY.regular,
   fontWeight: '400',
   lineHeight: 14,
   fontSize: 12,
