@@ -73,7 +73,8 @@
       ],
       "expo-font",
       "./plugins/withModularHeaders.cjs",
-      "./plugins/withKakaoMavenRepo.cjs"
+      "./plugins/withKakaoMavenRepo.cjs",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,

@@ -243,6 +243,8 @@ PODS:
     - ExpoModulesCore
   - ExpoSystemUI (55.0.18):
     - ExpoModulesCore
+  - ExpoWebBrowser (55.0.20):
+    - ExpoModulesCore
   - EXUpdatesInterface (55.1.6):
     - ExpoModulesCore
   - FBLazyVector (0.83.6)
@@ -2478,6 +2480,7 @@ DEPENDENCIES:
   - "ExpoSplashScreen (from `../node_modules/.pnpm/expo-splash-screen@55.0.21_expo@55.0.26_typescript@5.9.2/node_modules/expo-splash-screen/ios`)"
   - "ExpoSymbols (from `../node_modules/.pnpm/expo-symbols@55.0.9_expo-font@55.0.8_expo@55.0.26_react-native@0.83.6_@babel+core@7.29._5099956c01165c3b712d9b89728d05b9/node_modules/expo-symbols/ios`)"
   - "ExpoSystemUI (from `../node_modules/.pnpm/expo-system-ui@55.0.18_expo@55.0.26_react-native-web@0.21.2_react-dom@19.2.0_react@19.2_d8a5439d695f2f935c213e30d4f8e021/node_modules/expo-system-ui/ios`)"
+  - "ExpoWebBrowser (from `../node_modules/.pnpm/expo-web-browser@55.0.20_expo@55.0.26_react-native@0.83.6_@babel+core@7.29.7_@types+react@19.2.17_react@19.2.0_/node_modules/expo-web-browser/ios`)"
   - "EXUpdatesInterface (from `../node_modules/.pnpm/expo-updates-interface@55.1.6_expo@55.0.26/node_modules/expo-updates-interface/ios`)"
   - "FBLazyVector (from `../node_modules/.pnpm/react-native@0.83.6_@babel+core@7.29.7_@types+react@19.2.17_react@19.2.0/node_modules/react-native/Libraries/FBLazyVector`)"
   - "hermes-engine (from `../node_modules/.pnpm/react-native@0.83.6_@babel+core@7.29.7_@types+react@19.2.17_react@19.2.0/node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)"
@@ -2640,6 +2643,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/.pnpm/expo-symbols@55.0.9_expo-font@55.0.8_expo@55.0.26_react-native@0.83.6_@babel+core@7.29._5099956c01165c3b712d9b89728d05b9/node_modules/expo-symbols/ios"
   ExpoSystemUI:
     :path: "../node_modules/.pnpm/expo-system-ui@55.0.18_expo@55.0.26_react-native-web@0.21.2_react-dom@19.2.0_react@19.2_d8a5439d695f2f935c213e30d4f8e021/node_modules/expo-system-ui/ios"
+  ExpoWebBrowser:
+    :path: "../node_modules/.pnpm/expo-web-browser@55.0.20_expo@55.0.26_react-native@0.83.6_@babel+core@7.29.7_@types+react@19.2.17_react@19.2.0_/node_modules/expo-web-browser/ios"
   EXUpdatesInterface:
     :path: "../node_modules/.pnpm/expo-updates-interface@55.1.6_expo@55.0.26/node_modules/expo-updates-interface/ios"
   FBLazyVector:
@@ -2837,6 +2842,7 @@ SPEC CHECKSUMS:
   ExpoSplashScreen: 049301b226bce8284fcafb7923fcad3a43f23a9f
   ExpoSymbols: 896159288ad708e1a32dc12c92fe5f90bff01126
   ExpoSystemUI: fbc4f8af83f2b8338c1de69a79624769536f09d1
+  ExpoWebBrowser: 93992534927ba810f67e3171f6acf862c7098674
   EXUpdatesInterface: 4c11f4d1594526258f14d09817dc407acbf24e3b
   FBLazyVector: 427fa1856a481856091061293ce865a75aa4f20f
   Firebase: 5523dd53ebe603451b4e1befcd99fa20a5c015cd

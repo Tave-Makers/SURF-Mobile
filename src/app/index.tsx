@@ -1,4 +1,5 @@
 import * as SplashScreen from 'expo-splash-screen';
+import * as WebBrowser from 'expo-web-browser';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, BackHandler, StyleSheet, useColorScheme, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -93,6 +94,12 @@ const getQueryValue = (url: string, key: string) => {
   return null;
 };
 
+/**
+ * onShouldStartLoadWithRequest 의 인자.
+ * 패키지 루트가 이 타입을 내보내지 않아서 필요한 필드만 맞춰 쓴다.
+ */
+type ShouldStartLoadRequest = WebViewNavigation & { isTopFrame: boolean };
+
 const isSurfOrigin = (url: string) => url === WEB_URL || url.startsWith(`${WEB_URL}/`);
 
 const isLoginUrl = (url: string) => {
@@ -127,7 +134,8 @@ const HomeScreen = () => {
   const settleDelayRef = useRef<number>(SIGNED_IN_SETTLE_MS);
   const insets = useSafeAreaInsets();
   const scheme = useColorScheme();
-  const appBackground = COLOR_TOKENS[scheme === 'dark' ? 'dark' : 'light'].backgroundNormal;
+  const colors = COLOR_TOKENS[scheme === 'dark' ? 'dark' : 'light'];
+  const appBackground = colors.backgroundNormal;
 
   const [status, setStatus] = useState<SessionStatus>('booting');
   const [animationFinished, setAnimationFinished] = useState(false);
@@ -333,6 +341,35 @@ const HomeScreen = () => {
     );
   }, []);
 
+  /**
+   * 홈의 테이브 채널·후원사 같은 외부 링크는 WebView 안에서 열지 않는다.
+   *
+   * 앱에는 주소창도 뒤로가기 버튼도 없어서 한 번 나가면 돌아올 길이 보이지 않고,
+   * 외부 사이트가 SURF 세션 쿠키와 같은 저장소를 쓰게 된다.
+   * SFSafariViewController(iOS) / Chrome Custom Tabs(Android) 로 띄우면
+   * 닫기 버튼과 주소 표시를 OS 가 그려주고 저장소도 앱과 분리된다.
+   */
+  const handleShouldStartLoad = useCallback(
+    (request: ShouldStartLoadRequest) => {
+      if (isSurfOrigin(request.url)) return true;
+
+      // iOS 는 iframe 요청까지 이 콜백을 태운다. 본문 이동이 아니면 건드리지 않는다
+      if (!request.isTopFrame) return true;
+
+      // http(s) 가 아닌 스킴(mailto: 등)은 originWhitelist 가 이미 막고 있다
+      if (!/^https?:\/\//i.test(request.url)) return false;
+
+      void WebBrowser.openBrowserAsync(request.url, {
+        toolbarColor: colors.backgroundNormal,
+        controlsColor: colors.foregroundPrimary,
+        dismissButtonStyle: 'done',
+      });
+
+      return false;
+    },
+    [colors],
+  );
+
   const handleMessage = useCallback(
     (event: WebViewMessageEvent) => {
       const message = parseBridgeMessage(event.nativeEvent.data);
@@ -453,6 +490,7 @@ const HomeScreen = () => {
         // SPA 라우팅 등으로 document가 교체돼도 클래스/변수가 유지되도록 재주입
         onLoadEnd={handleLoadEnd}
         onMessage={handleMessage}
+        onShouldStartLoadWithRequest={handleShouldStartLoad}
         onNavigationStateChange={handleNavigationStateChange}
       />
 
