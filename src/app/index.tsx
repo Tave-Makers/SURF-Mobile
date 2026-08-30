@@ -40,6 +40,14 @@ type SessionStatus =
 const LOGIN_PATH = '/login';
 const LOGIN_CALLBACK_PATH = '/login/callback';
 
+/**
+ * 웹 루트(/)는 미로그인 상태에서도 200 으로 렌더된 뒤, 클라이언트에서 /login 으로 넘어간다.
+ * 그래서 로드가 끝난 직후의 "URL 이 /login 이 아니다" 는 아직 로그인 증거가 되지 못한다.
+ * 이 시간만큼 리다이렉트를 기다려 보고, 그래도 오지 않으면 로그인된 것으로 확정한다.
+ * 곧바로 확정하면 로그인 화면 → 웹 화면 → 로그인 화면으로 한 번 튄다.
+ */
+const SIGNED_IN_SETTLE_MS = 1_200;
+
 /** RN 의 URL 구현에 의존하지 않고 pathname 만 뽑는다. */
 const getPathname = (url: string) => {
   const withoutProtocol = url.replace(/^[a-z]+:\/\//i, '');
@@ -76,6 +84,9 @@ const HomeScreen = () => {
   const pushRequestedRef = useRef(false);
   const pushTokenRef = useRef<string | null>(null);
   const statusRef = useRef<SessionStatus>('booting');
+  const signedInTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  /** 지난 실행이 로그인 상태였다면 /login 리다이렉트를 기다릴 이유가 없다 */
+  const settleDelayRef = useRef<number>(SIGNED_IN_SETTLE_MS);
   const insets = useSafeAreaInsets();
   const scheme = useColorScheme();
   const appBackground = COLOR_TOKENS[scheme === 'dark' ? 'dark' : 'light'].backgroundNormal;
@@ -88,6 +99,32 @@ const HomeScreen = () => {
 
   statusRef.current = status;
 
+  const cancelSignedIn = useCallback(() => {
+    // 여기로 오는 경로는 전부 로그아웃이 확인된 시점이다.
+    // 지난 상태로 앞당겼던 확정을 원래대로 되돌려 다음 판정은 다시 리다이렉트를 기다린다
+    settleDelayRef.current = SIGNED_IN_SETTLE_MS;
+
+    if (signedInTimerRef.current === null) return;
+
+    clearTimeout(signedInTimerRef.current);
+    signedInTimerRef.current = null;
+  }, []);
+
+  // 로그인으로 확정하기 전에 /login 리다이렉트가 따라올 시간을 준다.
+  // 확정 전까지는 스플래시나 로그인 오버레이가 그대로 떠 있어 화면이 튀지 않는다.
+  const scheduleSignedIn = useCallback(() => {
+    if (signedInTimerRef.current !== null) return;
+
+    signedInTimerRef.current = setTimeout(() => {
+      signedInTimerRef.current = null;
+      setStatus((previous) =>
+        previous === 'browsing' || previous === 'authenticating' ? previous : 'signed-in',
+      );
+    }, settleDelayRef.current);
+  }, []);
+
+  useEffect(() => cancelSignedIn, [cancelSignedIn]);
+
   useEffect(() => {
     void isAppleSignInAvailable().then(setAppleAvailable);
   }, []);
@@ -97,6 +134,14 @@ const HomeScreen = () => {
   useEffect(() => {
     void (async () => {
       const cached = await readCachedSessionState();
+
+      // 로그인 상태로 열릴 것을 알고 있으면 확정을 늦출 필요가 없다.
+      // 예측이 틀렸을 때만(서버에서 세션이 만료된 경우) 잠깐 웹 화면을 스칠 수 있다.
+      if (cached === 'signed-in') {
+        settleDelayRef.current = 0;
+        return;
+      }
+
       if (cached !== 'signed-out') return;
 
       setStatus((previous) => (previous === 'booting' ? 'signed-out' : previous));
@@ -164,21 +209,25 @@ const HomeScreen = () => {
     [injectPushToken],
   );
 
-  const startSession = useCallback((payload: AppSessionPayload) => {
-    // SURF 오리진이 아닌 페이지에는 로그인 토큰을 절대 주입하지 않는다
-    if (!isSurfOrigin(currentUrlRef.current)) {
-      setStatus('signed-out');
-      setErrorMessage('로그인 페이지를 다시 불러오는 중이에요. 잠시 후 다시 시도해주세요.');
-      webViewRef.current?.injectJavaScript(
-        `window.location.replace(${JSON.stringify(`${WEB_URL}${LOGIN_PATH}`)});true;`,
-      );
-      return;
-    }
+  const startSession = useCallback(
+    (payload: AppSessionPayload) => {
+      // SURF 오리진이 아닌 페이지에는 로그인 토큰을 절대 주입하지 않는다
+      if (!isSurfOrigin(currentUrlRef.current)) {
+        cancelSignedIn();
+        setStatus('signed-out');
+        setErrorMessage('로그인 페이지를 다시 불러오는 중이에요. 잠시 후 다시 시도해주세요.');
+        webViewRef.current?.injectJavaScript(
+          `window.location.replace(${JSON.stringify(`${WEB_URL}${LOGIN_PATH}`)});true;`,
+        );
+        return;
+      }
 
-    setErrorMessage(null);
-    setStatus('authenticating');
-    webViewRef.current?.injectJavaScript(buildSessionScript(payload));
-  }, []);
+      setErrorMessage(null);
+      setStatus('authenticating');
+      webViewRef.current?.injectJavaScript(buildSessionScript(payload));
+    },
+    [cancelSignedIn],
+  );
 
   const handleKakaoPress = useCallback(() => {
     void (async () => {
@@ -224,54 +273,62 @@ const HomeScreen = () => {
     );
   }, []);
 
-  const handleMessage = useCallback((event: WebViewMessageEvent) => {
-    const message = parseBridgeMessage(event.nativeEvent.data);
-    if (message === null) return;
+  const handleMessage = useCallback(
+    (event: WebViewMessageEvent) => {
+      const message = parseBridgeMessage(event.nativeEvent.data);
+      if (message === null) return;
 
-    if (message.type === 'LOGGED_OUT') {
+      if (message.type === 'LOGGED_OUT') {
+        cancelSignedIn();
+        pushRequestedRef.current = false;
+        pushTokenRef.current = null;
+        setStatus('signed-out');
+        return;
+      }
+
+      if (message.ok) {
+        setErrorMessage(null);
+        setStatus('signed-in');
+        return;
+      }
+
+      cancelSignedIn();
+      void signOutFromKakao();
       pushRequestedRef.current = false;
       pushTokenRef.current = null;
       setStatus('signed-out');
-      return;
-    }
+      setErrorMessage(message.message ?? '로그인에 실패했어요. 잠시 후 다시 시도해주세요.');
+    },
+    [cancelSignedIn],
+  );
 
-    if (message.ok) {
-      setErrorMessage(null);
-      setStatus('signed-in');
-      return;
-    }
+  const handleNavigationStateChange = useCallback(
+    (navigationState: WebViewNavigation) => {
+      canGoBackRef.current = navigationState.canGoBack;
+      currentUrlRef.current = navigationState.url;
 
-    void signOutFromKakao();
-    pushRequestedRef.current = false;
-    pushTokenRef.current = null;
-    setStatus('signed-out');
-    setErrorMessage(message.message ?? '로그인에 실패했어요. 잠시 후 다시 시도해주세요.');
-  }, []);
+      // 이 콜백은 로딩 시작 시점에도 불린다. 그때의 url 은 아직 리다이렉트 전이라
+      // /login 으로 갈 요청도 홈으로 보여 로그인된 것으로 오판하게 된다.
+      if (navigationState.loading) return;
 
-  const handleNavigationStateChange = useCallback((navigationState: WebViewNavigation) => {
-    canGoBackRef.current = navigationState.canGoBack;
-    currentUrlRef.current = navigationState.url;
+      if (!isSurfOrigin(navigationState.url)) return;
 
-    // 이 콜백은 로딩 시작 시점에도 불린다. 그때의 url 은 아직 리다이렉트 전이라
-    // /login 으로 갈 요청도 홈으로 보여 로그인된 것으로 오판하게 된다.
-    if (navigationState.loading) return;
+      if (isLoginUrl(navigationState.url)) {
+        cancelSignedIn();
+        pushRequestedRef.current = false;
+        pushTokenRef.current = null;
+        // 세션을 심는 중에는 /login 을 스쳐갈 수 있으므로 유지한다
+        setStatus((previous) => (previous === 'authenticating' ? previous : 'signed-out'));
+        return;
+      }
 
-    if (!isSurfOrigin(navigationState.url)) return;
-
-    if (isLoginUrl(navigationState.url)) {
-      pushRequestedRef.current = false;
-      pushTokenRef.current = null;
-      // 세션을 심는 중에는 /login 을 스쳐갈 수 있으므로 유지한다
-      setStatus((previous) => (previous === 'authenticating' ? previous : 'signed-out'));
-      return;
-    }
-
-    // 약관 열람(browsing)과 로그인 진행(authenticating)은 그대로 두고,
-    // 나머지는 로그인된 것으로 본다. 캐시로 미리 signed-out 이 된 경우도 여기서 교정된다
-    setStatus((previous) =>
-      previous === 'browsing' || previous === 'authenticating' ? previous : 'signed-in',
-    );
-  }, []);
+      // 약관 열람(browsing)과 로그인 진행(authenticating)은 그대로 두고,
+      // 나머지는 로그인된 것으로 본다. 캐시로 미리 signed-out 이 된 경우도 여기서 교정된다.
+      // 다만 루트(/)는 미로그인이어도 여기까지 오므로 곧바로 확정하지 않는다
+      scheduleSignedIn();
+    },
+    [cancelSignedIn, scheduleSignedIn],
+  );
 
   const initScript = buildInitScript(insets);
 
@@ -280,12 +337,20 @@ const HomeScreen = () => {
     // 스플래시에 갇히지 않도록 booting 을 풀어준다.
     // 무조건 signed-in 으로 두면 /login 에 있는데도 잠깐 로그인 상태가 되어
     // 푸시 토큰 발급이 먼저 돌아버리므로 URL 로 판정한다
-    setStatus((previous) => {
-      if (previous !== 'booting') return previous;
-
+    if (statusRef.current === 'booting') {
       const url = currentUrlRef.current;
-      return isSurfOrigin(url) && !isLoginUrl(url) ? 'signed-in' : 'signed-out';
-    });
+
+      if (isSurfOrigin(url) && !isLoginUrl(url)) {
+        scheduleSignedIn();
+      } else {
+        cancelSignedIn();
+        setStatus('signed-out');
+      }
+    }
+
+    // 외부 사이트(홈의 테이브 채널·후원사 바로가기)에는 아무것도 주입하지 않는다.
+    // 특히 푸시 토큰은 SURF 오리진 밖으로 나가면 안 된다
+    if (!isSurfOrigin(currentUrlRef.current)) return;
 
     webViewRef.current?.injectJavaScript(initScript);
 
