@@ -143,6 +143,8 @@ const HomeScreen = () => {
   const [toast, setToast] = useState<{ id: number; text: string } | null>(null);
   const [alert, setAlert] = useState<{ title: string; infoText: string } | null>(null);
   const [appleAvailable, setAppleAvailable] = useState(false);
+  /** 웹이 /login 을 그리고 있는 동안에는 오버레이가 반드시 그 위를 덮는다 */
+  const [webAtLogin, setWebAtLogin] = useState(false);
 
   statusRef.current = status;
 
@@ -410,6 +412,15 @@ const HomeScreen = () => {
         showLoginNotice(getQueryValue(navigationState.url, 'msg'));
       }
 
+      // 로그인 화면은 네이티브 오버레이만 보여준다. 로딩이 끝나기를 기다리면 그동안
+      // 웹 /login 이 그대로 드러나므로(안드로이드에서는 웹 애플 버튼까지 스친다)
+      // 이동이 시작되는 즉시 덮고, 다른 화면이 다 그려진 뒤에야 걷는다.
+      if (isLoginUrl(navigationState.url)) {
+        setWebAtLogin(true);
+      } else if (!navigationState.loading) {
+        setWebAtLogin(false);
+      }
+
       // 이 콜백은 로딩 시작 시점에도 불린다. 그때의 url 은 아직 리다이렉트 전이라
       // /login 으로 갈 요청도 홈으로 보여 로그인된 것으로 오판하게 된다.
       if (navigationState.loading) return;
@@ -494,7 +505,7 @@ const HomeScreen = () => {
         onNavigationStateChange={handleNavigationStateChange}
       />
 
-      {(status === 'signed-out' || status === 'authenticating') && (
+      {(status === 'signed-out' || status === 'authenticating' || webAtLogin) && (
         <LoginOverlay
           pending={status === 'authenticating'}
           appleAvailable={appleAvailable}
