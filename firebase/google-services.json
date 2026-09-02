@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "74142284280",
+    "project_id": "surf-8b96d",
+    "storage_bucket": "surf-8b96d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:74142284280:android:2f0f93d8ebc43ed163fe0d",
+        "android_client_info": {
+          "package_name": "site.tavesurf.mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDqqmLnblLQ-Qp550bNsfVyl8Cd-KRCops"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

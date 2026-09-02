@@ -1,0 +1,13 @@
+# 네이티브 산출물 (prebuild / CocoaPods)
+ios/
+android/
+.expo/
+
+# 생성물 · 잠금 파일
+node_modules/
+dist/
+pnpm-lock.yaml
+
+# 자격증명
+certs/
+credentials/

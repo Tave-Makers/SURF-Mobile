@@ -1,0 +1,16 @@
+diff --git a/ios/RNFBMessaging/RNFBMessagingModule.mm b/ios/RNFBMessaging/RNFBMessagingModule.mm
+index 25b9f31e6ef0cc60ef52513f44d592684eeaf462..a3cf0f1fa70fa2e1d62c1aa9fbd8531ed9839e80 100644
+--- a/ios/RNFBMessaging/RNFBMessagingModule.mm
++++ b/ios/RNFBMessaging/RNFBMessagingModule.mm
+@@ -89,7 +89,10 @@ RCT_EXPORT_MODULE(NativeRNFBTurboMessaging)
+ }
+ 
+ - (facebook::react::ModuleConstants<JS::NativeRNFBTurboMessaging::Constants::Builder>)getConstants {
+-  return [self constantsToExport];
++  // RN 0.83 의 코드젠은 프로토콜에 constantsToExport 를 ModuleConstants<Constants> 로
++  // 선언하는데 이 파일은 ModuleConstants<Constants::Builder> 를 쓴다. [self constantsToExport]
++  // 를 거치면 그 선언이 잡혀 타입이 어긋나므로 본문을 직접 반환한다.
++  return [_RCTTypedModuleConstants newWithUnsafeDictionary:[self messagingConstantsDictionary]];
+ }
+ 
+ - (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:

@@ -1,0 +1,32 @@
+diff --git a/ios/RNFBApp/RNFBAppModule.mm b/ios/RNFBApp/RNFBAppModule.mm
+index ba1a750ca03bd96b97869bd363dc1c54b8586c8a..31de80f5adb1164666aca5a1548857695a4f21ce 100644
+--- a/ios/RNFBApp/RNFBAppModule.mm
++++ b/ios/RNFBApp/RNFBAppModule.mm
+@@ -107,7 +107,10 @@ RCT_EXPORT_MODULE(NativeRNFBTurboApp)
+ }
+ 
+ - (facebook::react::ModuleConstants<JS::NativeRNFBTurboApp::Constants::Builder>)getConstants {
+-  return [self constantsToExport];
++  // RN 0.83 의 코드젠은 프로토콜에 constantsToExport 를 ModuleConstants<Constants> 로
++  // 선언하는데 이 파일은 ModuleConstants<Constants::Builder> 를 쓴다. [self constantsToExport]
++  // 를 거치면 그 선언이 잡혀 타입이 어긋나므로 본문을 직접 반환한다.
++  return [_RCTTypedModuleConstants newWithUnsafeDictionary:[self appConstantsDictionary]];
+ }
+ 
+ #pragma mark -
+diff --git a/ios/RNFBApp/RNFBUtilsModule.mm b/ios/RNFBApp/RNFBUtilsModule.mm
+index 55cf75e8132eb861597e588485dfea601633b4a4..20faa04e7eccddfbe0ee8867cebd786a36160d26 100644
+--- a/ios/RNFBApp/RNFBUtilsModule.mm
++++ b/ios/RNFBApp/RNFBUtilsModule.mm
+@@ -75,7 +75,10 @@ RCT_EXPORT_MODULE(NativeRNFBTurboUtils)
+ }
+ 
+ - (facebook::react::ModuleConstants<JS::NativeRNFBTurboUtils::Constants::Builder>)getConstants {
+-  return [self constantsToExport];
++  // RN 0.83 의 코드젠은 프로토콜에 constantsToExport 를 ModuleConstants<Constants> 로
++  // 선언하는데 이 파일은 ModuleConstants<Constants::Builder> 를 쓴다. [self constantsToExport]
++  // 를 거치면 그 선언이 잡혀 타입이 어긋나므로 본문을 직접 반환한다.
++  return [_RCTTypedModuleConstants newWithUnsafeDictionary:[self utilsConstantsDictionary]];
+ }
+ 
+ #pragma mark -

@@ -1,0 +1,3 @@
+patchedDependencies:
+  '@react-native-firebase/app@26.3.2': patches/@react-native-firebase__app@26.3.2.patch
+  '@react-native-firebase/messaging@26.3.2': patches/@react-native-firebase__messaging@26.3.2.patch
